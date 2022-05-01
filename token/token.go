@@ -12,8 +12,17 @@ const (
 	INT   // INT
 
 	// 演算子
-	ASSIGN // =
-	PLUS   // +
+	ASSIGN   // =
+	PLUS     // +
+	MINUS    // -
+	BANG     // !
+	ASTERISK // *
+	SLASH    // /
+
+	LT     // <
+	GT     // >
+	EQ     // ==
+	NOT_EQ // !=
 
 	// デリミタ
 	COMMA     // ,
@@ -26,6 +35,11 @@ const (
 	// キーワード
 	FUNCTION // fn
 	LET      // let
+	TRUE     // true
+	FALSE    // false
+	IF       // if
+	ELSE     // else
+	RETURN   // return
 )
 
 type Token struct {
