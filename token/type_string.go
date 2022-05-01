@@ -14,19 +14,32 @@ func _() {
 	_ = x[INT-3]
 	_ = x[ASSIGN-4]
 	_ = x[PLUS-5]
-	_ = x[COMMA-6]
-	_ = x[SEMICOLON-7]
-	_ = x[LPAREN-8]
-	_ = x[RPAREN-9]
-	_ = x[LBRACE-10]
-	_ = x[RBRACE-11]
-	_ = x[FUNCTION-12]
-	_ = x[LET-13]
+	_ = x[MINUS-6]
+	_ = x[BANG-7]
+	_ = x[ASTERISK-8]
+	_ = x[SLASH-9]
+	_ = x[LT-10]
+	_ = x[GT-11]
+	_ = x[EQ-12]
+	_ = x[NOT_EQ-13]
+	_ = x[COMMA-14]
+	_ = x[SEMICOLON-15]
+	_ = x[LPAREN-16]
+	_ = x[RPAREN-17]
+	_ = x[LBRACE-18]
+	_ = x[RBRACE-19]
+	_ = x[FUNCTION-20]
+	_ = x[LET-21]
+	_ = x[TRUE-22]
+	_ = x[FALSE-23]
+	_ = x[IF-24]
+	_ = x[ELSE-25]
+	_ = x[RETURN-26]
 }
 
-const _Type_name = "ILLEGALEOFIDENTINT=+,;(){}fnlet"
+const _Type_name = "ILLEGALEOFIDENTINT=+-!*/<>==!=,;(){}fnlettruefalseifelsereturn"
 
-var _Type_index = [...]uint8{0, 7, 10, 15, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 31}
+var _Type_index = [...]uint8{0, 7, 10, 15, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 30, 31, 32, 33, 34, 35, 36, 38, 41, 45, 50, 52, 56, 62}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

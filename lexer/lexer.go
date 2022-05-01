@@ -27,11 +27,24 @@ func (l *Lexer) readChar() {
 	l.readPosisiton++
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.readPosisiton >= len(l.input) {
+		return 0
+	}
+	return l.input[l.readPosisiton]
+}
+
 func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 	defer l.readChar()
 	switch l.ch {
 	case '=':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			return token.Token{Type: token.EQ, Literal: literal}
+		}
 		return newToken(token.ASSIGN, l.ch)
 	case ';':
 		return newToken(token.SEMICOLON, l.ch)
@@ -47,6 +60,24 @@ func (l *Lexer) NextToken() token.Token {
 		return newToken(token.COMMA, l.ch)
 	case '+':
 		return newToken(token.PLUS, l.ch)
+	case '-':
+		return newToken(token.MINUS, l.ch)
+	case '!':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			return token.Token{Type: token.NOT_EQ, Literal: literal}
+		}
+		return newToken(token.BANG, l.ch)
+	case '/':
+		return newToken(token.SLASH, l.ch)
+	case '*':
+		return newToken(token.ASTERISK, l.ch)
+	case '<':
+		return newToken(token.LT, l.ch)
+	case '>':
+		return newToken(token.GT, l.ch)
 	case 0:
 		return token.Token{Type: token.EOF}
 	default:

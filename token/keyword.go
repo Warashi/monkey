@@ -3,6 +3,11 @@ package token
 var keywordTypes = [...]Type{
 	FUNCTION,
 	LET,
+	TRUE,
+	FALSE,
+	IF,
+	ELSE,
+	RETURN,
 }
 
 var keywords map[string]Type
