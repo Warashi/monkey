@@ -10,30 +10,43 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	const input = `=+(){},;`
 	tok := func(t token.Type, l string) token.Token { return token.Token{Type: t, Literal: l} }
 
-	wants := []token.Token{
-		tok(token.ASSIGN, "="),
-		tok(token.PLUS, "+"),
-		tok(token.LPAREN, "("),
-		tok(token.RPAREN, ")"),
-		tok(token.LBRACE, "{"),
-		tok(token.RBRACE, "}"),
-		tok(token.COMMA, ","),
-		tok(token.SEMICOLON, ";"),
+	tests := []struct {
+		name  string
+		input string
+		wants []token.Token
+	}{
+		{
+			name:  "symbols",
+			input: `=+(){},;`,
+			wants: []token.Token{
+				tok(token.ASSIGN, "="),
+				tok(token.PLUS, "+"),
+				tok(token.LPAREN, "("),
+				tok(token.RPAREN, ")"),
+				tok(token.LBRACE, "{"),
+				tok(token.RBRACE, "}"),
+				tok(token.COMMA, ","),
+				tok(token.SEMICOLON, ";"),
+			},
+		},
 	}
 
-	for waste, want := range wants {
-		waste, want := waste, want
-		t.Run(strconv.Itoa(waste), func(t *testing.T) {
-			l := lexer.New(input)
-			for i := 0; i < waste; i++ {
-				l.NextToken()
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			for waste, want := range tt.wants {
+				waste, want := waste, want
+				t.Run(strconv.Itoa(waste), func(t *testing.T) {
+					l := lexer.New(tt.input)
+					for i := 0; i < waste; i++ {
+						l.NextToken()
+					}
+					got := l.NextToken()
+					assert.Equal(t, got, want)
+				})
 			}
-			got := l.NextToken()
-			assert.Equal(t, got, want)
 		})
-
 	}
 }
