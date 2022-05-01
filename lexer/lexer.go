@@ -1,6 +1,8 @@
 package lexer
 
-import "github.com/Warashi/implement-interpreter-with-go/token"
+import (
+	"github.com/Warashi/implement-interpreter-with-go/token"
+)
 
 type Lexer struct {
 	input         string
@@ -26,6 +28,7 @@ func (l *Lexer) readChar() {
 }
 
 func (l *Lexer) NextToken() token.Token {
+	l.skipWhitespace()
 	defer l.readChar()
 	switch l.ch {
 	case '=':
@@ -44,13 +47,55 @@ func (l *Lexer) NextToken() token.Token {
 		return newToken(token.COMMA, l.ch)
 	case '+':
 		return newToken(token.PLUS, l.ch)
-	case '0':
+	case 0:
 		return token.Token{Type: token.EOF}
 	default:
-		return token.Token{Type: token.ILLEGAL}
+		switch {
+		case isLetter(l.ch):
+			ident := l.readIdentifier()
+			return token.Token{Type: token.LookupIdent(ident), Literal: ident}
+		case isNumber(l.ch):
+			return token.Token{Type: token.INT, Literal: l.readNumber()}
+		default:
+			return newToken(token.ILLEGAL, l.ch)
+		}
+	}
+}
+
+func (l *Lexer) readIdentifier() string {
+	p := l.position
+	for isLetter(l.input[l.readPosisiton]) {
+		l.readChar()
+	}
+	return l.input[p:l.readPosisiton]
+}
+
+func (l *Lexer) readNumber() string {
+	p := l.position
+	for isNumber(l.input[l.readPosisiton]) {
+		l.readChar()
+	}
+	return l.input[p:l.readPosisiton]
+}
+
+func (l *Lexer) skipWhitespace() {
+	for isSpace(l.ch) {
+		l.readChar()
 	}
 }
 
 func newToken(t token.Type, ch byte) token.Token {
 	return token.Token{Type: t, Literal: string(ch)}
+}
+
+func isNumber(ch byte) bool {
+	return '0' <= ch && ch <= '9'
+}
+
+func isSpace(ch byte) bool {
+	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
+}
+
+func isLetter(ch byte) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }

@@ -2,5 +2,9 @@ package testdata
 
 import _ "embed"
 
-//go:embed symbols.monkey
-var Symbols string
+var (
+	//go:embed symbols.monkey
+	Symbols string
+	//go:embed first.monkey
+	First string
+)

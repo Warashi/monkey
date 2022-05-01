@@ -13,7 +13,7 @@ const (
 
 	// 演算子
 	ASSIGN // =
-	PLUS   // PLUS
+	PLUS   // +
 
 	// デリミタ
 	COMMA     // ,
@@ -24,8 +24,8 @@ const (
 	RBRACE    // }
 
 	// キーワード
-	FUNCTION // FUNCTION
-	LET      // LET
+	FUNCTION // fn
+	LET      // let
 )
 
 type Token struct {

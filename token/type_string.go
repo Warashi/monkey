@@ -24,9 +24,9 @@ func _() {
 	_ = x[LET-13]
 }
 
-const _Type_name = "ILLEGALEOFIDENTINT=PLUS,;(){}FUNCTIONLET"
+const _Type_name = "ILLEGALEOFIDENTINT=+,;(){}fnlet"
 
-var _Type_index = [...]uint8{0, 7, 10, 15, 18, 19, 23, 24, 25, 26, 27, 28, 29, 37, 40}
+var _Type_index = [...]uint8{0, 7, 10, 15, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 31}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {
