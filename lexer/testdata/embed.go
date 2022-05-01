@@ -7,4 +7,6 @@ var (
 	Symbols string
 	//go:embed first.monkey
 	First string
+	//go:embed second.monkey
+	Second string
 )
