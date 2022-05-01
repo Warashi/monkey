@@ -1,10 +1,12 @@
 package lexer_test
 
 import (
+	_ "embed"
 	"strconv"
 	"testing"
 
 	"github.com/Warashi/implement-interpreter-with-go/lexer"
+	"github.com/Warashi/implement-interpreter-with-go/lexer/testdata"
 	"github.com/Warashi/implement-interpreter-with-go/token"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,7 +21,7 @@ func TestNextToken(t *testing.T) {
 	}{
 		{
 			name:  "symbols",
-			input: `=+(){},;`,
+			input: testdata.Symbols,
 			wants: []token.Token{
 				tok(token.ASSIGN, "="),
 				tok(token.PLUS, "+"),
@@ -44,7 +46,7 @@ func TestNextToken(t *testing.T) {
 						l.NextToken()
 					}
 					got := l.NextToken()
-					assert.Equal(t, got, want)
+					assert.Equal(t, want, got)
 				})
 			}
 		})
