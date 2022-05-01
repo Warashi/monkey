@@ -1,26 +1,22 @@
 package token
 
-var keywordTypes = [...]Type{
-	FUNCTION,
-	LET,
-	TRUE,
-	FALSE,
-	IF,
-	ELSE,
-	RETURN,
-}
+import "golang.org/x/exp/maps"
 
-var keywords map[string]Type
-
-func init() {
-	keywords = make(map[string]Type, len(keywordTypes))
-	for _, k := range keywordTypes {
-		keywords[k.String()] = k
+var (
+	keywordTypes = map[string]Type{
+		"fn":     FUNCTION,
+		"let":    LET,
+		"true":   TRUE,
+		"false":  FALSE,
+		"if":     IF,
+		"else":   ELSE,
+		"return": RETURN,
 	}
-}
+	keywords = maps.Values(keywordTypes)
+)
 
 func LookupIdent(ident string) Type {
-	if tok, ok := keywords[ident]; ok {
+	if tok, ok := keywordTypes[ident]; ok {
 		return tok
 	}
 	return IDENT

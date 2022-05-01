@@ -1,6 +1,6 @@
 package token
 
-//go:generate go run golang.org/x/tools/cmd/stringer -type Type -linecomment
+//go:generate go run golang.org/x/tools/cmd/stringer -type Type
 type Type int
 
 const (
