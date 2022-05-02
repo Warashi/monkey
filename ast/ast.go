@@ -70,6 +70,15 @@ func (e *Identifier) expressionNode()      {}
 func (e *Identifier) TokenLiteral() string { return e.Token.Literal }
 func (e *Identifier) String() string       { return e.Value }
 
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
+}
+
+func (e *IntegerLiteral) expressionNode()      {}
+func (e *IntegerLiteral) TokenLiteral() string { return e.Token.Literal }
+func (e *IntegerLiteral) String() string       { return e.Token.Literal }
+
 type ReturnStatement struct {
 	Token token.Token
 	Value Expression

@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/Warashi/implement-interpreter-with-go/ast"
@@ -61,5 +62,25 @@ func TestIdentifierExpression(t *testing.T) {
 		}
 	}
 	wants := []ast.Statement{id("foobar")}
+	assert.Equal(t, wants, program.Statements)
+}
+
+func TestIntegerLiteralExpression(t *testing.T) {
+	p := parser.New(lexer.New(testdata.IntegerLiteralExpression))
+	program := p.Parse()
+	require.Empty(t, p.Errors())
+	require.NotNil(t, program)
+	assert.Equal(t, testdata.IntegerLiteralExpression, program.String())
+
+	integer := func(value int64) ast.Statement {
+		return &ast.ExpressionStatement{
+			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
+			Expression: &ast.IntegerLiteral{
+				Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
+				Value: value,
+			},
+		}
+	}
+	wants := []ast.Statement{integer(5)}
 	assert.Equal(t, wants, program.Statements)
 }

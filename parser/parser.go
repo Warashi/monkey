@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/Warashi/implement-interpreter-with-go/ast"
 	"github.com/Warashi/implement-interpreter-with-go/lexer"
@@ -29,6 +30,7 @@ func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, prefixParseFns: make(map[token.Type]prefixParseFn), infixParseFns: make(map[token.Type]infixParseFn)}
 
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 
 	// current, peek をセット
 	p.nextToken()
@@ -64,6 +66,15 @@ func (p *Parser) Parse() *ast.Program {
 
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.current, Value: p.current.Literal}
+}
+
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	value, err := strconv.ParseInt(p.current.Literal, 10, 64)
+	if err != nil {
+		p.errors = append(p.errors, fmt.Sprintf("could not parse %q as integer", p.current.Literal))
+		return nil
+	}
+	return &ast.IntegerLiteral{Token: p.current, Value: value}
 }
 
 func (p *Parser) parseStatement() ast.Statement {
