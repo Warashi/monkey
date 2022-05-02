@@ -18,7 +18,6 @@ func TestLetStatement(t *testing.T) {
 	program := p.Parse()
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
-	assert.Equal(t, testdata.Let, program.String())
 
 	let := func(name string) ast.Statement {
 		return &ast.LetStatement{
@@ -34,7 +33,6 @@ func TestReturnStatement(t *testing.T) {
 	program := p.Parse()
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
-	assert.Equal(t, testdata.Return, program.String())
 
 	ret := func(name string) ast.Statement {
 		return &ast.ReturnStatement{
@@ -50,7 +48,6 @@ func TestIdentifierExpression(t *testing.T) {
 	program := p.Parse()
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
-	assert.Equal(t, testdata.IdentifierExpression, program.String())
 
 	id := func(name string) ast.Statement {
 		return &ast.ExpressionStatement{
@@ -70,7 +67,6 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	program := p.Parse()
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
-	assert.Equal(t, testdata.IntegerLiteralExpression, program.String())
 
 	integer := func(value int64) ast.Statement {
 		return &ast.ExpressionStatement{
@@ -83,4 +79,31 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 	wants := []ast.Statement{integer(5)}
 	assert.Equal(t, wants, program.Statements)
+}
+
+func TestPrefixExpression(t *testing.T) {
+	tests := []struct {
+		i   string
+		tok token.Token
+		op  string
+		v   int64
+	}{
+		{i: "!5", tok: token.Token{Type: token.BANG, Literal: "!"}, op: "!", v: 5},
+		{i: "-15", tok: token.Token{Type: token.MINUS, Literal: "-"}, op: "-", v: 15},
+	}
+	for _, tt := range tests {
+		p := parser.New(lexer.New(tt.i))
+		program := p.Parse()
+		require.Empty(t, p.Errors())
+		require.NotNil(t, program)
+		want := []ast.Statement{&ast.ExpressionStatement{
+			Token: tt.tok,
+			Expression: &ast.PrefixExpression{
+				Token:    tt.tok,
+				Operator: tt.op,
+				Right:    &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(tt.v, 10)}, Value: tt.v},
+			},
+		}}
+		assert.Equal(t, want, program.Statements)
+	}
 }
