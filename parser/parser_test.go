@@ -1,7 +1,6 @@
 package parser_test
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/Warashi/implement-interpreter-with-go/ast"
@@ -18,7 +17,6 @@ func TestLetStatement(t *testing.T) {
 	program := p.Parse()
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
-	require.Len(t, program.Statements, 3)
 	assert.Equal(t, testdata.Let, program.String())
 
 	let := func(name string) ast.Statement {
@@ -27,11 +25,7 @@ func TestLetStatement(t *testing.T) {
 			Name:  &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: name}, Value: name}}
 	}
 	wants := []ast.Statement{let("x"), let("y"), let("foobar")}
-	for i, want := range wants {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			assert.Equal(t, want, program.Statements[i])
-		})
-	}
+	assert.Equal(t, wants, program.Statements)
 }
 
 func TestReturnStatement(t *testing.T) {
@@ -39,7 +33,6 @@ func TestReturnStatement(t *testing.T) {
 	program := p.Parse()
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
-	require.Len(t, program.Statements, 3)
 	assert.Equal(t, testdata.Return, program.String())
 
 	ret := func(name string) ast.Statement {
@@ -48,11 +41,7 @@ func TestReturnStatement(t *testing.T) {
 		}
 	}
 	wants := []ast.Statement{ret("5"), ret("10"), ret("993322")}
-	for i, want := range wants {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			assert.Equal(t, want, program.Statements[i])
-		})
-	}
+	assert.Equal(t, wants, program.Statements)
 }
 
 func TestIdentifierExpression(t *testing.T) {
