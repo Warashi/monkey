@@ -43,3 +43,11 @@ type Identifier struct {
 
 func (e *Identifier) expressionNode()      {}
 func (e *Identifier) TokenLiteral() string { return e.Token.Literal }
+
+type ReturnStatement struct {
+	Token token.Token
+	Value Expression
+}
+
+func (s *ReturnStatement) statementNode()       {}
+func (s *ReturnStatement) TokenLiteral() string { return s.Token.Literal }

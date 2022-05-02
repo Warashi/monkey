@@ -32,3 +32,23 @@ func TestLetStatement(t *testing.T) {
 		})
 	}
 }
+
+func TestReturnStatement(t *testing.T) {
+	p := parser.New(lexer.New(testdata.Return))
+	program := p.Parse()
+	require.Empty(t, p.Errors())
+	require.NotNil(t, program)
+	require.Len(t, program.Statements, 3)
+
+	ret := func(name string) ast.Statement {
+		return &ast.ReturnStatement{
+			Token: token.Token{Type: token.RETURN, Literal: "return"},
+		}
+	}
+	wants := []ast.Statement{ret("5"), ret("10"), ret("993322")}
+	for i, want := range wants {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			assert.Equal(t, want, program.Statements[i])
+		})
+	}
+}
