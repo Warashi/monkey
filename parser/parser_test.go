@@ -82,28 +82,31 @@ func TestIntegerLiteralExpression(t *testing.T) {
 }
 
 func TestPrefixExpression(t *testing.T) {
+	pre := func(t token.Type, op string, v int64) ast.Statement {
+		return &ast.ExpressionStatement{
+			Token: token.Token{Type: t, Literal: op},
+			Expression: &ast.PrefixExpression{
+				Token:    token.Token{Type: t, Literal: op},
+				Operator: op,
+				Right: &ast.IntegerLiteral{
+					Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(v, 10)},
+					Value: v,
+				},
+			},
+		}
+	}
 	tests := []struct {
-		i   string
-		tok token.Token
-		op  string
-		v   int64
+		input string
+		want  []ast.Statement
 	}{
-		{i: "!5", tok: token.Token{Type: token.BANG, Literal: "!"}, op: "!", v: 5},
-		{i: "-15", tok: token.Token{Type: token.MINUS, Literal: "-"}, op: "-", v: 15},
+		{input: "!5", want: []ast.Statement{pre(token.BANG, "!", 5)}},
+		{input: "-15", want: []ast.Statement{pre(token.MINUS, "-", 15)}},
 	}
 	for _, tt := range tests {
-		p := parser.New(lexer.New(tt.i))
+		p := parser.New(lexer.New(tt.input))
 		program := p.Parse()
 		require.Empty(t, p.Errors())
 		require.NotNil(t, program)
-		want := []ast.Statement{&ast.ExpressionStatement{
-			Token: tt.tok,
-			Expression: &ast.PrefixExpression{
-				Token:    tt.tok,
-				Operator: tt.op,
-				Right:    &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(tt.v, 10)}, Value: tt.v},
-			},
-		}}
-		assert.Equal(t, want, program.Statements)
+		assert.Equal(t, tt.want, program.Statements)
 	}
 }
