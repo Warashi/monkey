@@ -1,9 +1,14 @@
 package ast
 
-import "github.com/Warashi/implement-interpreter-with-go/token"
+import (
+	"strings"
+
+	"github.com/Warashi/implement-interpreter-with-go/token"
+)
 
 type Node interface {
 	TokenLiteral() string
+	String() string
 }
 
 type Statement interface {
@@ -27,6 +32,14 @@ func (p *Program) TokenLiteral() string {
 	return ""
 }
 
+func (p *Program) String() string {
+	var b strings.Builder
+	for _, s := range p.Statements {
+		b.WriteString(s.String())
+	}
+	return b.String()
+}
+
 type LetStatement struct {
 	Token token.Token
 	Name  *Identifier
@@ -35,6 +48,18 @@ type LetStatement struct {
 
 func (s *LetStatement) statementNode()       {}
 func (s *LetStatement) TokenLiteral() string { return s.Token.Literal }
+func (s *LetStatement) String() string {
+	var b strings.Builder
+	b.WriteString(s.TokenLiteral())
+	b.WriteString(" ")
+	b.WriteString(s.Name.String())
+	b.WriteString(" = ")
+	if s.Value != nil {
+		b.WriteString(s.Value.String())
+	}
+	b.WriteString(";\n")
+	return b.String()
+}
 
 type Identifier struct {
 	Token token.Token
@@ -43,6 +68,7 @@ type Identifier struct {
 
 func (e *Identifier) expressionNode()      {}
 func (e *Identifier) TokenLiteral() string { return e.Token.Literal }
+func (e *Identifier) String() string       { return e.Value }
 
 type ReturnStatement struct {
 	Token token.Token
@@ -51,3 +77,27 @@ type ReturnStatement struct {
 
 func (s *ReturnStatement) statementNode()       {}
 func (s *ReturnStatement) TokenLiteral() string { return s.Token.Literal }
+func (s *ReturnStatement) String() string {
+	var b strings.Builder
+	b.WriteString(s.TokenLiteral())
+	b.WriteString(" ")
+	if s.Value != nil {
+		b.WriteString(s.Value.String())
+	}
+	b.WriteString(";\n")
+	return b.String()
+}
+
+type ExpressionStatement struct {
+	Token      token.Token
+	Expression Expression
+}
+
+func (s *ExpressionStatement) statementNode()       {}
+func (s *ExpressionStatement) TokenLiteral() string { return s.Token.Literal }
+func (s *ExpressionStatement) String() string {
+	if s.Expression != nil {
+		return s.Expression.String()
+	}
+	return ""
+}

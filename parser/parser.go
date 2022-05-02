@@ -8,8 +8,27 @@ import (
 	"github.com/Warashi/implement-interpreter-with-go/token"
 )
 
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+	precedence    int
+)
+
+const (
+	_ precedence = iota
+	LOWEST
+	EQUALS
+	LTGT
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
+
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{l: l, prefixParseFns: make(map[token.Type]prefixParseFn), infixParseFns: make(map[token.Type]infixParseFn)}
+
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
 
 	// current, peek をセット
 	p.nextToken()
@@ -22,15 +41,15 @@ type Parser struct {
 
 	current, peek token.Token
 	errors        []string
+
+	prefixParseFns map[token.Type]prefixParseFn
+	infixParseFns  map[token.Type]infixParseFn
 }
 
-func (p *Parser) Errors() []string {
-	return p.errors
-}
-
-func (p *Parser) nextToken() {
-	p.current, p.peek = p.peek, p.l.NextToken()
-}
+func (p *Parser) registerPrefix(t token.Type, fn prefixParseFn) { p.prefixParseFns[t] = fn }
+func (p *Parser) registerInfix(t token.Type, fn infixParseFn)   { p.infixParseFns[t] = fn }
+func (p *Parser) Errors() []string                              { return p.errors }
+func (p *Parser) nextToken()                                    { p.current, p.peek = p.peek, p.l.NextToken() }
 
 func (p *Parser) Parse() *ast.Program {
 	program := new(ast.Program)
@@ -43,6 +62,10 @@ func (p *Parser) Parse() *ast.Program {
 	return program
 }
 
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.current, Value: p.current.Literal}
+}
+
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.current.Type {
 	case token.LET:
@@ -50,7 +73,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -63,19 +86,34 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
-	stmt.Value = p.parseExpression()
+	stmt.Value = p.parseExpression(LOWEST)
+	for !p.currentIs(token.SEMICOLON) {
+		p.nextToken()
+	}
 	return stmt
 }
 
 func (p *Parser) parseReturnStatement() ast.Statement {
 	stmt := &ast.ReturnStatement{Token: p.current}
-	stmt.Value = p.parseExpression()
+	stmt.Value = p.parseExpression(LOWEST)
+	for !p.currentIs(token.SEMICOLON) {
+		p.nextToken()
+	}
 	return stmt
 }
 
-func (p *Parser) parseExpression() ast.Expression {
-	for !p.currentIs(token.SEMICOLON) {
+func (p *Parser) parseExpressionStatement() ast.Statement {
+	stmt := &ast.ExpressionStatement{Token: p.current}
+	stmt.Expression = p.parseExpression(LOWEST)
+	if p.peekIs(token.SEMICOLON) {
 		p.nextToken()
+	}
+	return stmt
+}
+
+func (p *Parser) parseExpression(prec precedence) ast.Expression {
+	if prefix, ok := p.prefixParseFns[p.current.Type]; ok {
+		return prefix()
 	}
 	return nil
 }
