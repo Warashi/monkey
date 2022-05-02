@@ -14,9 +14,11 @@ import (
 )
 
 func TestLetStatement(t *testing.T) {
-	p := parser.New(lexer.New(testdata.Let)).Parse()
-	require.NotNil(t, p)
-	require.Len(t, p.Statements, 3)
+	p := parser.New(lexer.New(testdata.Let))
+	program := p.Parse()
+	require.Empty(t, p.Errors())
+	require.NotNil(t, program)
+	require.Len(t, program.Statements, 3)
 
 	let := func(name string) ast.Statement {
 		return &ast.LetStatement{
@@ -26,7 +28,7 @@ func TestLetStatement(t *testing.T) {
 	wants := []ast.Statement{let("x"), let("y"), let("foobar")}
 	for i, want := range wants {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			assert.Equal(t, want, p.Statements[i])
+			assert.Equal(t, want, program.Statements[i])
 		})
 	}
 }

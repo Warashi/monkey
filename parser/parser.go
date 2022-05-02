@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/Warashi/implement-interpreter-with-go/ast"
 	"github.com/Warashi/implement-interpreter-with-go/lexer"
 	"github.com/Warashi/implement-interpreter-with-go/token"
@@ -19,6 +21,11 @@ type Parser struct {
 	l *lexer.Lexer
 
 	current, peek token.Token
+	errors        []string
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
 }
 
 func (p *Parser) nextToken() {
@@ -47,11 +54,11 @@ func (p *Parser) parseStatement() ast.Statement {
 
 func (p *Parser) parseLetStatement() ast.Statement {
 	stmt := &ast.LetStatement{Token: p.current}
-	if !p.nextIfPeekIs(token.IDENT) {
+	if !p.expectPeek(token.IDENT) {
 		return nil
 	}
 	stmt.Name = &ast.Identifier{Token: p.current, Value: p.current.Literal}
-	if !p.nextIfPeekIs(token.ASSIGN) {
+	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
 	stmt.Value = p.parseExpression()
@@ -73,10 +80,11 @@ func (p *Parser) peekIs(t token.Type) bool {
 	return p.peek.Type == t
 }
 
-func (p *Parser) nextIfPeekIs(t token.Type) bool {
+func (p *Parser) expectPeek(t token.Type) bool {
 	if p.peekIs(t) {
 		p.nextToken()
 		return true
 	}
+	p.errors = append(p.errors, fmt.Sprintf("expect next token is %s but %s instead", t, p.peek.Type))
 	return false
 }
