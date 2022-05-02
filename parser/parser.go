@@ -46,17 +46,23 @@ func (p *Parser) parseStatement() ast.Statement {
 }
 
 func (p *Parser) parseLetStatement() ast.Statement {
+	stmt := &ast.LetStatement{Token: p.current}
 	if !p.nextIfPeekIs(token.IDENT) {
 		return nil
 	}
-	name := &ast.Identifier{Token: p.current, Value: p.current.Literal}
+	stmt.Name = &ast.Identifier{Token: p.current, Value: p.current.Literal}
 	if !p.nextIfPeekIs(token.ASSIGN) {
 		return nil
 	}
+	stmt.Value = p.parseExpression()
+	return stmt
+}
+
+func (p *Parser) parseExpression() ast.Expression {
 	for !p.currentIs(token.SEMICOLON) {
 		p.nextToken()
 	}
-	return &ast.LetStatement{Name: name}
+	return nil
 }
 
 func (p *Parser) currentIs(t token.Type) bool {

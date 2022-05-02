@@ -19,7 +19,9 @@ func TestLetStatement(t *testing.T) {
 	require.Len(t, p.Statements, 3)
 
 	let := func(name string) ast.Statement {
-		return &ast.LetStatement{Name: &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: name}, Value: name}}
+		return &ast.LetStatement{
+			Token: token.Token{Type: token.LET, Literal: "let"},
+			Name:  &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: name}, Value: name}}
 	}
 	wants := []ast.Statement{let("x"), let("y"), let("foobar")}
 	for i, want := range wants {
