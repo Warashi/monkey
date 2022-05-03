@@ -36,6 +36,8 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}{
 		{input: "5", want: IntegerObject(t, 5)},
 		{input: "10", want: IntegerObject(t, 10)},
+		{input: "-5", want: IntegerObject(t, -5)},
+		{input: "-10", want: IntegerObject(t, -10)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
