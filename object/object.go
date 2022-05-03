@@ -2,13 +2,14 @@ package object
 
 import "strconv"
 
-type Type string
+type Type int
 
 const (
-	TypeInteger Type = "INTEGER"
-	TypeBoolean Type = "BOOLEAN"
-	TypeNull    Type = "NULL"
-	TypeReturn  Type = "RETURN"
+	_ Type = iota
+	TypeInteger
+	TypeBoolean
+	TypeNull
+	TypeReturn
 )
 
 type Object interface {
