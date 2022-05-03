@@ -108,7 +108,9 @@ func (e *InfixExpression) String() string {
 	var b strings.Builder
 	b.WriteString("(")
 	b.WriteString(e.Left.String())
+	b.WriteString(" ")
 	b.WriteString(e.Operator)
+	b.WriteString(" ")
 	b.WriteString(e.Right.String())
 	b.WriteString(")")
 	return b.String()
