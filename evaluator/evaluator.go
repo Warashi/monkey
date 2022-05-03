@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/Warashi/implement-interpreter-with-go/ast"
 	"github.com/Warashi/implement-interpreter-with-go/object"
 )
@@ -22,15 +24,31 @@ func Eval(n ast.Node) object.Object {
 	case *ast.BooleanLiteral:
 		return booleanObject(n.Value)
 	case *ast.PrefixExpression:
-		return evalPrefixExpression(n.Operator, Eval(n.Right))
+		right := Eval(n.Right)
+		if isError(right) {
+			return right
+		}
+		return evalPrefixExpression(n.Operator, right)
 	case *ast.InfixExpression:
-		return evalInfixExpression(n.Operator, Eval(n.Left), Eval(n.Right))
+		left := Eval(n.Left)
+		if isError(left) {
+			return left
+		}
+		right := Eval(n.Right)
+		if isError(right) {
+			return right
+		}
+		return evalInfixExpression(n.Operator, left, right)
 	case *ast.BlockStatement:
 		return evalBlockStatement(n)
 	case *ast.IfExpression:
 		return evalIfExpression(n)
 	case *ast.ReturnStatement:
-		return object.Return{Value: Eval(n.Value)}
+		result := Eval(n.Value)
+		if isError(result) {
+			return result
+		}
+		return object.Return{Value: result}
 	default:
 		return nil
 	}
@@ -43,12 +61,23 @@ func booleanObject(val bool) object.Boolean {
 	return FALSE
 }
 
+func newErrorf(format string, a ...any) object.Object {
+	return object.Error{Message: fmt.Sprintf(format, a...)}
+}
+
+func isError(o object.Object) bool {
+	return o.Type() == object.TypeError
+}
+
 func evalProgram(p *ast.Program) object.Object {
 	var result object.Object
 	for _, stmt := range p.Statements {
 		result = Eval(stmt)
-		if v, ok := result.(object.Return); ok {
-			return v.Value
+		switch result := result.(type) {
+		case object.Return:
+			return result.Value
+		case object.Error:
+			return result
 		}
 	}
 	return result
@@ -58,7 +87,7 @@ func evalBlockStatement(s *ast.BlockStatement) object.Object {
 	var result object.Object
 	for _, stmt := range s.Statements {
 		result = Eval(stmt)
-		if result != nil && result.Type() == object.TypeReturn {
+		if t := result.Type(); t == object.TypeReturn || t == object.TypeError {
 			return result
 		}
 	}
@@ -72,7 +101,7 @@ func evalPrefixExpression(op string, right object.Object) object.Object {
 	case "-":
 		return evalMinusOperatorExpression(right)
 	default:
-		return NULL
+		return newErrorf("unknown operator %s", op)
 	}
 }
 
@@ -91,7 +120,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 
 func evalMinusOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.TypeInteger {
-		return NULL
+		return newErrorf("unknown operator: -%s", right.Type())
 	}
 	return object.Integer{Value: -right.(object.Integer).Value}
 }
@@ -104,8 +133,10 @@ func evalInfixExpression(op string, left, right object.Object) object.Object {
 		return booleanObject(left != right)
 	case left.Type() == object.TypeInteger && right.Type() == object.TypeInteger:
 		return evalIntegerInfixExpression(op, left.(object.Integer), right.(object.Integer))
+	case left.Type() != right.Type():
+		return newErrorf("type mismatch: %s %s %s", left.Type(), op, right.Type())
 	default:
-		return NULL
+		return newErrorf("unknown operator: %s %s %s", left.Type(), op, right.Type())
 	}
 }
 
@@ -124,12 +155,16 @@ func evalIntegerInfixExpression(op string, left, right object.Integer) object.Ob
 	case ">":
 		return booleanObject(left.Value > right.Value)
 	default:
-		return NULL
+		return newErrorf("unknown operator: %s %s %s", left.Type(), op, right.Type())
 	}
 }
 
 func evalIfExpression(n *ast.IfExpression) object.Object {
-	if isTruthy(Eval(n.Condition)) {
+	cond := Eval(n.Condition)
+	if isError(cond) {
+		return cond
+	}
+	if isTruthy(cond) {
 		return Eval(n.Consequence)
 	}
 	if n.Alternative != nil {

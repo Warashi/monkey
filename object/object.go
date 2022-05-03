@@ -11,6 +11,7 @@ const (
 	TypeBoolean
 	TypeNull
 	TypeReturn
+	TypeError
 )
 
 type Object interface {
@@ -32,6 +33,10 @@ type Return struct {
 	Value Object
 }
 
+type Error struct {
+	Message string
+}
+
 func (o Integer) Type() Type      { return TypeInteger }
 func (o Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
 
@@ -43,3 +48,6 @@ func (o Null) Inspect() string { return "null" }
 
 func (o Return) Type() Type      { return TypeReturn }
 func (o Return) Inspect() string { return o.Value.Inspect() }
+
+func (o Error) Type() Type      { return TypeError }
+func (o Error) Inspect() string { return "ERROR: " + o.Message }

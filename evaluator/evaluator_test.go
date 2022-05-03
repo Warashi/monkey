@@ -29,6 +29,11 @@ func NullObject(t *testing.T) object.Object {
 	return object.Null{}
 }
 
+func ErrorObject(t *testing.T, message string) object.Object {
+	t.Helper()
+	return object.Error{Message: message}
+}
+
 func TestEvalIntegerExpression(t *testing.T) {
 	tests := []struct {
 		input string
@@ -144,6 +149,29 @@ func TestReturnStatements(t *testing.T) {
 		// {input: "let f = fn(x) { return x; x + 10; }; f(10);", want: IntegerObject(t, 10)},
 		// {input: "let f = fn(x) { let result = x + 10; return result; return 10; }; f(10);", want: IntegerObject(t, 20)},
 	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(t, tt.input))
+		})
+	}
+}
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: "5 + true;", want: ErrorObject(t, "type mismatch: Integer + Boolean")},
+		{input: "5 + true; 5;", want: ErrorObject(t, "type mismatch: Integer + Boolean")},
+		{input: "-true", want: ErrorObject(t, "unknown operator: -Boolean")},
+		{input: "true + false;", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
+		{input: "true + false + true + false;", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
+		{input: "5; true + false; 5", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
+		{input: "if (10 > 1) { true + false; }", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
+		{input: "if (10 > 1) { if (10 > 1) { return true + false; } return 1; }", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
+		// {input: "foobar", want: ErrorObject(t, "identifier not found: foobar")},
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
 			assert.Equal(t, tt.want, Eval(t, tt.input))
