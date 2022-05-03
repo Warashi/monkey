@@ -129,3 +129,24 @@ func TestIfElseExpressions(t *testing.T) {
 		})
 	}
 }
+
+func TestReturnStatements(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: "return 10;", want: IntegerObject(t, 10)},
+		{input: "return 10; 9;", want: IntegerObject(t, 10)},
+		{input: "return 2 * 5; 9;", want: IntegerObject(t, 10)},
+		{input: "9; return 2 * 5; 9;", want: IntegerObject(t, 10)},
+		{input: "if (10 > 1) { return 10; }", want: IntegerObject(t, 10)},
+		{input: "if (10 > 1) { if (10 > 1) { return 10; } return 1; }", want: IntegerObject(t, 10)},
+		// {input: "let f = fn(x) { return x; x + 10; }; f(10);", want: IntegerObject(t, 10)},
+		// {input: "let f = fn(x) { let result = x + 10; return result; return 10; }; f(10);", want: IntegerObject(t, 20)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(t, tt.input))
+		})
+	}
+}
