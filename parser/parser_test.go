@@ -222,3 +222,144 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		})
 	}
 }
+
+func TestIfExpression(t *testing.T) {
+	tests := []struct {
+		input string
+		want  []ast.Statement
+	}{
+		{
+			/*
+			   +   Consequence: (*ast.BlockStatement)({
+			   +    Token: (token.Token) {
+			   +     Type: (token.Type) 18,
+			   +     Literal: (string) (len=1) "{"
+			   +    },
+			   +    Statements: ([]ast.Statement) (len=1) {
+			   +     (*ast.ExpressionStatement)({
+			   +      Token: (token.Token) {
+			   +       Type: (token.Type) 2,
+			   +       Literal: (string) (len=1) "x"
+			   +      },
+			   +      Expression: (*ast.Identifier)({
+			   +       Token: (token.Token) {
+			   +        Type: (token.Type) 2,
+			   +        Literal: (string) (len=1) "x"
+			   +       },
+			   +       Value: (string) (len=1) "x"
+			   +      })
+			   +     })
+			   +    }
+			   +   }),
+			*/
+			input: "if (x < y) { x }",
+			want: []ast.Statement{
+				&ast.ExpressionStatement{
+					Token: token.Token{Type: token.IF, Literal: "if"},
+					Expression: &ast.IfExpression{
+						Token: token.Token{Type: token.IF, Literal: "if"},
+						Condition: &ast.InfixExpression{
+							Token:    token.Token{Type: token.LT, Literal: "<"},
+							Operator: "<",
+							Left: &ast.Identifier{
+								Token: token.Token{Type: token.IDENT, Literal: "x"},
+								Value: "x",
+							},
+							Right: &ast.Identifier{
+								Token: token.Token{Type: token.IDENT, Literal: "y"},
+								Value: "y",
+							},
+						},
+						Consequence: &ast.BlockStatement{
+							Token: token.Token{Type: token.LBRACE, Literal: "{"},
+							Statements: []ast.Statement{
+								&ast.ExpressionStatement{
+									Token: token.Token{
+										Type:    token.IDENT,
+										Literal: "x",
+									},
+									Expression: &ast.Identifier{
+										Token: token.Token{
+											Type:    token.IDENT,
+											Literal: "x",
+										},
+										Value: "x",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			input: "if (x < y) { x } else { y }",
+			want: []ast.Statement{
+				&ast.ExpressionStatement{
+					Token: token.Token{Type: token.IF, Literal: "if"},
+					Expression: &ast.IfExpression{
+						Token: token.Token{Type: token.IF, Literal: "if"},
+						Condition: &ast.InfixExpression{
+							Token:    token.Token{Type: token.LT, Literal: "<"},
+							Operator: "<",
+							Left: &ast.Identifier{
+								Token: token.Token{Type: token.IDENT, Literal: "x"},
+								Value: "x",
+							},
+							Right: &ast.Identifier{
+								Token: token.Token{Type: token.IDENT, Literal: "y"},
+								Value: "y",
+							},
+						},
+						Consequence: &ast.BlockStatement{
+							Token: token.Token{Type: token.LBRACE, Literal: "{"},
+							Statements: []ast.Statement{
+								&ast.ExpressionStatement{
+									Token: token.Token{
+										Type:    token.IDENT,
+										Literal: "x",
+									},
+									Expression: &ast.Identifier{
+										Token: token.Token{
+											Type:    token.IDENT,
+											Literal: "x",
+										},
+										Value: "x",
+									},
+								},
+							},
+						},
+						Alternative: &ast.BlockStatement{
+							Token: token.Token{Type: token.LBRACE, Literal: "{"},
+							Statements: []ast.Statement{
+								&ast.ExpressionStatement{
+									Token: token.Token{
+										Type:    token.IDENT,
+										Literal: "y",
+									},
+									Expression: &ast.Identifier{
+										Token: token.Token{
+											Type:    token.IDENT,
+											Literal: "y",
+										},
+										Value: "y",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}
