@@ -168,6 +168,27 @@ func (e *IfExpression) String() string {
 	return b.String()
 }
 
+type CallExpression struct {
+	Token     token.Token
+	Function  Expression
+	Arguments []Expression
+}
+
+func (e *CallExpression) expressionNode()      {}
+func (e *CallExpression) TokenLiteral() string { return e.Token.Literal }
+func (e *CallExpression) String() string {
+	args := make([]string, 0, len(e.Arguments))
+	for _, arg := range e.Arguments {
+		args = append(args, arg.String())
+	}
+	var b strings.Builder
+	b.WriteString(e.Function.String())
+	b.WriteString("(")
+	b.WriteString(strings.Join(args, ", "))
+	b.WriteString(")")
+	return b.String()
+}
+
 type ReturnStatement struct {
 	Token token.Token
 	Value Expression

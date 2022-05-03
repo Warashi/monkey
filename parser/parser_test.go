@@ -308,29 +308,6 @@ func TestIfExpression(t *testing.T) {
 		want  []ast.Statement
 	}{
 		{
-			/*
-			   +   Consequence: (*ast.BlockStatement)({
-			   +    Token: (token.Token) {
-			   +     Type: (token.Type) 18,
-			   +     Literal: (string) (len=1) "{"
-			   +    },
-			   +    Statements: ([]ast.Statement) (len=1) {
-			   +     (*ast.ExpressionStatement)({
-			   +      Token: (token.Token) {
-			   +       Type: (token.Type) 2,
-			   +       Literal: (string) (len=1) "x"
-			   +      },
-			   +      Expression: (*ast.Identifier)({
-			   +       Token: (token.Token) {
-			   +        Type: (token.Type) 2,
-			   +        Literal: (string) (len=1) "x"
-			   +       },
-			   +       Value: (string) (len=1) "x"
-			   +      })
-			   +     })
-			   +    }
-			   +   }),
-			*/
 			input: "if (x < y) { x }",
 			want: []ast.Statement{
 				&ast.ExpressionStatement{
@@ -429,6 +406,62 @@ func TestIfExpression(t *testing.T) {
 					},
 				},
 			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}
+
+func TestCallExpression(t *testing.T) {
+	id := func(name string) *ast.Identifier {
+		return &ast.Identifier{
+			Token: token.Token{Type: token.IDENT, Literal: name},
+			Value: name,
+		}
+	}
+	integer := func(val int64) *ast.IntegerLiteral {
+		return &ast.IntegerLiteral{
+			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(val, 10)},
+			Value: val,
+		}
+	}
+	infix := func(tok token.Token, left, right ast.Expression) *ast.InfixExpression {
+		return &ast.InfixExpression{
+			Token:    tok,
+			Operator: tok.Literal,
+			Left:     left,
+			Right:    right,
+		}
+	}
+	buildWant := func(fn string, args ...ast.Expression) []ast.Statement {
+		return []ast.Statement{&ast.ExpressionStatement{
+			Token: token.Token{Type: token.IDENT, Literal: fn},
+			Expression: &ast.CallExpression{
+				Token:     token.Token{Type: token.LPAREN, Literal: "("},
+				Function:  id(fn),
+				Arguments: args,
+			},
+		}}
+	}
+
+	asterisk := token.Token{Type: token.ASTERISK, Literal: "*"}
+	plus := token.Token{Type: token.PLUS, Literal: "+"}
+
+	tests := []struct {
+		input string
+		want  []ast.Statement
+	}{
+		{
+			input: "add(1, 2 * 3, 4 + 5)",
+			want:  buildWant("add", integer(1), infix(asterisk, integer(2), integer(3)), infix(plus, integer(4), integer(5))),
 		},
 	}
 
