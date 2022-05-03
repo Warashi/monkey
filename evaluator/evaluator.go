@@ -57,6 +57,8 @@ func Eval(n ast.Node, env object.Environment) object.Object {
 		return env.Set(n.Name.Value, result)
 	case *ast.Identifier:
 		return evalIdentifier(n, env)
+	case *ast.FunctionLiteral:
+		return object.Function{Parameters: n.Parameters, Body: n.Body, Env: env}
 	default:
 		return newErrorf("unknown node: %T", n)
 	}
