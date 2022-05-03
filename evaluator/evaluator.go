@@ -13,6 +13,8 @@ func Eval(n ast.Node) object.Object {
 		return Eval(n.Expression)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: n.Value}
+	case *ast.BooleanLiteral:
+		return &object.Boolean{Value: n.Value}
 	default:
 		return nil
 	}
