@@ -19,12 +19,17 @@ func TestLetStatement(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	let := func(name string) ast.Statement {
+	let := func(name string, value int64) ast.Statement {
 		return &ast.LetStatement{
 			Token: token.Token{Type: token.LET, Literal: "let"},
-			Name:  &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: name}, Value: name}}
+			Name:  &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: name}, Value: name},
+			Value: &ast.IntegerLiteral{
+				Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
+				Value: value,
+			},
+		}
 	}
-	wants := []ast.Statement{let("x"), let("y"), let("foobar")}
+	wants := []ast.Statement{let("x", 5), let("y", 10), let("foobar", 838383)}
 	assert.Equal(t, wants, program.Statements)
 }
 
@@ -34,12 +39,16 @@ func TestReturnStatement(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	ret := func(name string) ast.Statement {
+	ret := func(value int64) ast.Statement {
 		return &ast.ReturnStatement{
 			Token: token.Token{Type: token.RETURN, Literal: "return"},
+			Value: &ast.IntegerLiteral{
+				Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
+				Value: value,
+			},
 		}
 	}
-	wants := []ast.Statement{ret("5"), ret("10"), ret("993322")}
+	wants := []ast.Statement{ret(5), ret(10), ret(993322)}
 	assert.Equal(t, wants, program.Statements)
 }
 
