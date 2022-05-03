@@ -64,6 +64,25 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}{
 		{input: "true", want: BooleanObject(t, true)},
 		{input: "false", want: BooleanObject(t, false)},
+		{input: "true", want: BooleanObject(t, true)},
+		{input: "false", want: BooleanObject(t, false)},
+		{input: "1 < 2", want: BooleanObject(t, true)},
+		{input: "1 > 2", want: BooleanObject(t, false)},
+		{input: "1 < 1", want: BooleanObject(t, false)},
+		{input: "1 > 1", want: BooleanObject(t, false)},
+		{input: "1 == 1", want: BooleanObject(t, true)},
+		{input: "1 != 1", want: BooleanObject(t, false)},
+		{input: "1 == 2", want: BooleanObject(t, false)},
+		{input: "1 != 2", want: BooleanObject(t, true)},
+		{input: "true == true", want: BooleanObject(t, true)},
+		{input: "false == false", want: BooleanObject(t, true)},
+		{input: "true == false", want: BooleanObject(t, false)},
+		{input: "true != false", want: BooleanObject(t, true)},
+		{input: "false != true", want: BooleanObject(t, true)},
+		{input: "(1 < 2) == true", want: BooleanObject(t, true)},
+		{input: "(1 < 2) == false", want: BooleanObject(t, false)},
+		{input: "(1 > 2) == true", want: BooleanObject(t, false)},
+		{input: "(1 > 2) == false", want: BooleanObject(t, true)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {

@@ -78,6 +78,10 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 
 func evalInfixExpression(op string, left, right object.Object) object.Object {
 	switch {
+	case op == "==":
+		return booleanObject(left == right)
+	case op == "!=":
+		return booleanObject(left != right)
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(op, left.(object.Integer), right.(object.Integer))
 	default:
@@ -95,6 +99,10 @@ func evalIntegerInfixExpression(op string, left, right object.Integer) object.Ob
 		return object.Integer{Value: left.Value * right.Value}
 	case "/":
 		return object.Integer{Value: left.Value / right.Value}
+	case "<":
+		return booleanObject(left.Value < right.Value)
+	case ">":
+		return booleanObject(left.Value > right.Value)
 	default:
 		return NULL
 	}
