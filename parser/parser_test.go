@@ -102,11 +102,13 @@ func TestPrefixExpression(t *testing.T) {
 		{input: "!5", want: []ast.Statement{pre(token.BANG, "!", 5)}},
 		{input: "-15", want: []ast.Statement{pre(token.MINUS, "-", 15)}},
 	}
-	for _, tt := range tests {
-		p := parser.New(lexer.New(tt.input))
-		program := p.Parse()
-		require.Empty(t, p.Errors())
-		require.NotNil(t, program)
-		assert.Equal(t, tt.want, program.Statements)
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.Statements)
+		})
 	}
 }
