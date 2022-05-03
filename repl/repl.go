@@ -6,19 +6,24 @@ import (
 	"io"
 
 	"github.com/Warashi/implement-interpreter-with-go/lexer"
-	"github.com/Warashi/implement-interpreter-with-go/token"
+	"github.com/Warashi/implement-interpreter-with-go/parser"
 )
 
 const PROMPT = ">> "
 
 func Start(r io.Reader, w io.Writer) {
 	s := bufio.NewScanner(r)
-	fmt.Print(PROMPT)
+	fmt.Fprint(w, PROMPT)
 	for s.Scan() {
 		l := lexer.New(s.Text())
-
-		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-			fmt.Printf("%+v\n", tok)
+		p := parser.New(l)
+		program := p.Parse()
+		if errs := p.Errors(); len(errs) != 0 {
+			for _, err := range errs {
+				fmt.Fprintf(w, "\t%s\n", err)
+			}
 		}
+		fmt.Fprintln(w, program)
+		fmt.Fprint(w, PROMPT)
 	}
 }
