@@ -2,6 +2,7 @@ package object
 
 import "strconv"
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type Type -trimprefix Type
 type Type int
 
 const (
