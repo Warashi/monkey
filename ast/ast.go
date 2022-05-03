@@ -125,6 +125,27 @@ func (e *InfixExpression) String() string {
 	return b.String()
 }
 
+type IfExpression struct {
+	Token                    token.Token
+	Condition                Expression
+	Consequence, Alternative *BlockStatement
+}
+
+func (e *IfExpression) expressionNode()      {}
+func (e *IfExpression) TokenLiteral() string { return e.Token.Literal }
+func (e *IfExpression) String() string {
+	var b strings.Builder
+	b.WriteString("if")
+	b.WriteString(e.Condition.String())
+	b.WriteString(" ")
+	b.WriteString(e.Consequence.String())
+	if e.Alternative != nil {
+		b.WriteString("else ")
+		b.WriteString(e.Alternative.String())
+	}
+	return b.String()
+}
+
 type ReturnStatement struct {
 	Token token.Token
 	Value Expression
@@ -155,4 +176,21 @@ func (s *ExpressionStatement) String() string {
 		return s.Expression.String()
 	}
 	return ""
+}
+
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+func (s *BlockStatement) TokenLiteral() string {
+	return s.Token.Literal
+}
+
+func (s *BlockStatement) String() string {
+	var b strings.Builder
+	for _, s := range s.Statements {
+		b.WriteString(s.String())
+	}
+	return b.String()
 }
