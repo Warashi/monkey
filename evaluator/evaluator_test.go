@@ -109,3 +109,23 @@ func TestBangOperator(t *testing.T) {
 		})
 	}
 }
+
+func TestIfElseExpressions(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{"if (true) { 10 }", IntegerObject(t, 10)},
+		{"if (false) { 10 }", NullObject(t)},
+		{"if (1) { 10 }", IntegerObject(t, 10)},
+		{"if (1 < 2) { 10 }", IntegerObject(t, 10)},
+		{"if (1 > 2) { 10 }", NullObject(t)},
+		{"if (1 > 2) { 10 } else { 20 }", IntegerObject(t, 20)},
+		{"if (1 < 2) { 10 } else { 20 }", IntegerObject(t, 10)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(t, tt.input))
+		})
+	}
+}
