@@ -11,4 +11,6 @@ var (
 	IdentifierExpression string
 	//go:embed integer-literal-expression.monkey
 	IntegerLiteralExpression string
+	//go:embed boolean-literal-expression.monkey
+	BooleanLiteralExpression string
 )

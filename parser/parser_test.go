@@ -81,6 +81,30 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	assert.Equal(t, wants, program.Statements)
 }
 
+func TestBooleanLiteralExpression(t *testing.T) {
+	p := parser.New(lexer.New(testdata.BooleanLiteralExpression))
+	program := p.Parse()
+	require.Empty(t, p.Errors())
+	require.NotNil(t, program)
+
+	trueExp := &ast.ExpressionStatement{
+		Token: token.Token{Type: token.TRUE, Literal: "true"},
+		Expression: &ast.BooleanLiteral{
+			Token: token.Token{Type: token.TRUE, Literal: "true"},
+			Value: true,
+		},
+	}
+	falseExp := &ast.ExpressionStatement{
+		Token: token.Token{Type: token.FALSE, Literal: "false"},
+		Expression: &ast.BooleanLiteral{
+			Token: token.Token{Type: token.FALSE, Literal: "false"},
+			Value: false,
+		},
+	}
+	wants := []ast.Statement{trueExp, falseExp, trueExp, falseExp}
+	assert.Equal(t, wants, program.Statements)
+}
+
 func TestPrefixExpression(t *testing.T) {
 	pre := func(t token.Type, op string, v int64) ast.Statement {
 		return &ast.ExpressionStatement{
@@ -153,6 +177,48 @@ func TestInfixExpression(t *testing.T) {
 			require.Empty(t, p.Errors())
 			require.NotNil(t, program)
 			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}
+
+func TestOperatorPrecedenceParsing(t *testing.T) {
+	tests := []struct {
+		input, want string
+	}{
+		{input: "-a * b", want: "((-a) * b)"},
+		{input: "!-a", want: "(!(-a))"},
+		{input: "a + b + c", want: "((a + b) + c)"},
+		{input: "a + b - c", want: "((a + b) - c)"},
+		{input: "a * b * c", want: "((a * b) * c)"},
+		{input: "a * b / c", want: "((a * b) / c)"},
+		{input: "a + b / c", want: "(a + (b / c))"},
+		{input: "a + b * c + d / e - f", want: "(((a + (b * c)) + (d / e)) - f)"},
+		{input: "3 + 4; -5 * 5", want: "(3 + 4)((-5) * 5)"},
+		{input: "5 > 4 == 3 < 4", want: "((5 > 4) == (3 < 4))"},
+		{input: "5 < 4 != 3 > 4", want: "((5 < 4) != (3 > 4))"},
+		{input: "3 + 4 * 5 == 3 * 1 + 4 * 5", want: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"},
+		{input: "true", want: "true"},
+		{input: "false", want: "false"},
+		{input: "3 > 5 == false", want: "((3 > 5) == false)"},
+		{input: "3 < 5 == true", want: "((3 < 5) == true)"},
+		{input: "1 + (2 + 3) + 4", want: "((1 + (2 + 3)) + 4)"},
+		{input: "(5 + 5) * 2", want: "((5 + 5) * 2)"},
+		{input: "2 / (5 + 5)", want: "(2 / (5 + 5))"},
+		{input: "(5 + 5) * 2 * (5 + 5)", want: "(((5 + 5) * 2) * (5 + 5))"},
+		{input: "-(5 + 5)", want: "(-(5 + 5))"},
+		{input: "!(true == true)", want: "(!(true == true))"},
+		{input: "a + add(b * c) + d", want: "((a + add((b * c))) + d)"},
+		{input: "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", want: "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"},
+		{input: "add(a + b + c * d / f + g)", want: "add((((a + b) + ((c * d) / f)) + g))"},
+		{input: "", want: ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.String())
 		})
 	}
 }
