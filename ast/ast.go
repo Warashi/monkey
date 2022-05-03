@@ -88,6 +88,28 @@ func (e *BooleanLiteral) expressionNode()      {}
 func (e *BooleanLiteral) TokenLiteral() string { return e.Token.Literal }
 func (e *BooleanLiteral) String() string       { return e.Token.Literal }
 
+type FunctionLiteral struct {
+	Token      token.Token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (e *FunctionLiteral) expressionNode()      {}
+func (e *FunctionLiteral) TokenLiteral() string { return e.Token.Literal }
+func (e *FunctionLiteral) String() string {
+	var b strings.Builder
+	params := make([]string, 0, len(e.Parameters))
+	for _, p := range e.Parameters {
+		params = append(params, p.String())
+	}
+	b.WriteString(e.TokenLiteral())
+	b.WriteString("(")
+	b.WriteString(strings.Join(params, ","))
+	b.WriteString(")")
+	b.WriteString(e.Body.String())
+	return b.String()
+}
+
 type PrefixExpression struct {
 	Token    token.Token
 	Operator string

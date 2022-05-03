@@ -105,6 +105,40 @@ func TestBooleanLiteralExpression(t *testing.T) {
 	assert.Equal(t, wants, program.Statements)
 }
 
+func TestFunctionLiteralExpression(t *testing.T) {
+	p := parser.New(lexer.New(testdata.FunctionLiteralExpression))
+	program := p.Parse()
+	require.Empty(t, p.Errors())
+	require.NotNil(t, program)
+
+	x := &ast.Identifier{
+		Token: token.Token{Type: token.IDENT, Literal: "x"},
+		Value: "x",
+	}
+	y := &ast.Identifier{
+		Token: token.Token{Type: token.IDENT, Literal: "y"},
+		Value: "y",
+	}
+	fn := &ast.FunctionLiteral{
+		Token:      token.Token{Type: token.FUNCTION, Literal: "fn"},
+		Parameters: []*ast.Identifier{x, y},
+		Body: &ast.BlockStatement{
+			Token: token.Token{Type: token.LBRACE, Literal: "{"},
+			Statements: []ast.Statement{&ast.ExpressionStatement{
+				Token: token.Token{Type: token.IDENT, Literal: "x"},
+				Expression: &ast.InfixExpression{
+					Token:    token.Token{Type: token.PLUS, Literal: "+"},
+					Operator: "+",
+					Left:     x,
+					Right:    y,
+				},
+			}},
+		},
+	}
+	wants := []ast.Statement{&ast.ExpressionStatement{Token: token.Token{Type: token.FUNCTION, Literal: "fn"}, Expression: fn}}
+	assert.Equal(t, wants, program.Statements)
+}
+
 func TestPrefixExpression(t *testing.T) {
 	pre := func(t token.Type, op string, v int64) ast.Statement {
 		return &ast.ExpressionStatement{
