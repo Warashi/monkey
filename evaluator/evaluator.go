@@ -8,6 +8,7 @@ import (
 var (
 	TRUE  = object.Boolean{Value: true}
 	FALSE = object.Boolean{Value: false}
+	NULL  = object.Null{}
 )
 
 func Eval(n ast.Node) object.Object {
