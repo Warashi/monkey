@@ -13,44 +13,52 @@ var (
 	NULL  = object.Null{}
 )
 
-func Eval(n ast.Node) object.Object {
+func Eval(n ast.Node, env object.Environment) object.Object {
 	switch n := n.(type) {
 	case *ast.Program:
-		return evalProgram(n)
+		return evalProgram(n, env)
 	case *ast.ExpressionStatement:
-		return Eval(n.Expression)
+		return Eval(n.Expression, env)
 	case *ast.IntegerLiteral:
 		return object.Integer{Value: n.Value}
 	case *ast.BooleanLiteral:
 		return booleanObject(n.Value)
 	case *ast.PrefixExpression:
-		right := Eval(n.Right)
+		right := Eval(n.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalPrefixExpression(n.Operator, right)
 	case *ast.InfixExpression:
-		left := Eval(n.Left)
+		left := Eval(n.Left, env)
 		if isError(left) {
 			return left
 		}
-		right := Eval(n.Right)
+		right := Eval(n.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalInfixExpression(n.Operator, left, right)
 	case *ast.BlockStatement:
-		return evalBlockStatement(n)
+		return evalBlockStatement(n, env)
 	case *ast.IfExpression:
-		return evalIfExpression(n)
+		return evalIfExpression(n, env)
 	case *ast.ReturnStatement:
-		result := Eval(n.Value)
+		result := Eval(n.Value, env)
 		if isError(result) {
 			return result
 		}
 		return object.Return{Value: result}
+	case *ast.LetStatement:
+		result := Eval(n.Value, env)
+		if isError(result) {
+			return result
+		}
+		return env.Set(n.Name.Value, result)
+	case *ast.Identifier:
+		return evalIdentifier(n, env)
 	default:
-		return nil
+		return newErrorf("unknown node: %T", n)
 	}
 }
 
@@ -69,10 +77,10 @@ func isError(o object.Object) bool {
 	return o.Type() == object.TypeError
 }
 
-func evalProgram(p *ast.Program) object.Object {
+func evalProgram(p *ast.Program, env object.Environment) object.Object {
 	var result object.Object
 	for _, stmt := range p.Statements {
-		result = Eval(stmt)
+		result = Eval(stmt, env)
 		switch result := result.(type) {
 		case object.Return:
 			return result.Value
@@ -83,10 +91,10 @@ func evalProgram(p *ast.Program) object.Object {
 	return result
 }
 
-func evalBlockStatement(s *ast.BlockStatement) object.Object {
+func evalBlockStatement(s *ast.BlockStatement, env object.Environment) object.Object {
 	var result object.Object
 	for _, stmt := range s.Statements {
-		result = Eval(stmt)
+		result = Eval(stmt, env)
 		if t := result.Type(); t == object.TypeReturn || t == object.TypeError {
 			return result
 		}
@@ -159,18 +167,25 @@ func evalIntegerInfixExpression(op string, left, right object.Integer) object.Ob
 	}
 }
 
-func evalIfExpression(n *ast.IfExpression) object.Object {
-	cond := Eval(n.Condition)
+func evalIfExpression(n *ast.IfExpression, env object.Environment) object.Object {
+	cond := Eval(n.Condition, env)
 	if isError(cond) {
 		return cond
 	}
 	if isTruthy(cond) {
-		return Eval(n.Consequence)
+		return Eval(n.Consequence, env)
 	}
 	if n.Alternative != nil {
-		return Eval(n.Alternative)
+		return Eval(n.Alternative, env)
 	}
 	return NULL
+}
+
+func evalIdentifier(n *ast.Identifier, env object.Environment) object.Object {
+	if val, ok := env.Get(n.Value); ok {
+		return val
+	}
+	return newErrorf("identifier not found: %s", n.Value)
 }
 
 func isTruthy(o object.Object) bool {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/Warashi/implement-interpreter-with-go/evaluator"
 	"github.com/Warashi/implement-interpreter-with-go/lexer"
+	"github.com/Warashi/implement-interpreter-with-go/object"
 	"github.com/Warashi/implement-interpreter-with-go/parser"
 )
 
@@ -14,6 +15,7 @@ const PROMPT = ">> "
 
 func Start(r io.Reader, w io.Writer) {
 	s := bufio.NewScanner(r)
+	env := object.NewEnvironment()
 	fmt.Fprint(w, PROMPT)
 	for s.Scan() {
 		l := lexer.New(s.Text())
@@ -25,7 +27,7 @@ func Start(r io.Reader, w io.Writer) {
 				continue
 			}
 		}
-		if e := evaluator.Eval(program); e != nil {
+		if e := evaluator.Eval(program, env); e != nil {
 			fmt.Fprintln(w, e.Inspect())
 		}
 		fmt.Fprint(w, PROMPT)

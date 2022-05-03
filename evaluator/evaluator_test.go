@@ -12,7 +12,7 @@ import (
 
 func Eval(t *testing.T, input string) object.Object {
 	t.Helper()
-	return evaluator.Eval(parser.New(lexer.New(input)).Parse())
+	return evaluator.Eval(parser.New(lexer.New(input)).Parse(), object.NewEnvironment())
 }
 
 func IntegerObject(t *testing.T, val int64) object.Object {
@@ -169,7 +169,25 @@ func TestErrorHandling(t *testing.T) {
 		{input: "5; true + false; 5", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
 		{input: "if (10 > 1) { true + false; }", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
 		{input: "if (10 > 1) { if (10 > 1) { return true + false; } return 1; }", want: ErrorObject(t, "unknown operator: Boolean + Boolean")},
-		// {input: "foobar", want: ErrorObject(t, "identifier not found: foobar")},
+		{input: "foobar", want: ErrorObject(t, "identifier not found: foobar")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(t, tt.input))
+		})
+	}
+}
+
+func TestLetStatement(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: "let a = 5; a;", want: IntegerObject(t, 5)},
+		{input: "let a = 5 * 5; a;", want: IntegerObject(t, 25)},
+		{input: "let a = 5; let b = a; b;", want: IntegerObject(t, 5)},
+		{input: "let a = 5; let b = a; let c = a + b + 5; c;", want: IntegerObject(t, 15)},
 	}
 
 	for _, tt := range tests {
