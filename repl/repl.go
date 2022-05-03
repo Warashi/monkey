@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/Warashi/implement-interpreter-with-go/evaluator"
 	"github.com/Warashi/implement-interpreter-with-go/lexer"
 	"github.com/Warashi/implement-interpreter-with-go/parser"
 )
@@ -21,9 +22,12 @@ func Start(r io.Reader, w io.Writer) {
 		if errs := p.Errors(); len(errs) != 0 {
 			for _, err := range errs {
 				fmt.Fprintf(w, "\t%s\n", err)
+				continue
 			}
 		}
-		fmt.Fprintln(w, program)
+		if e := evaluator.Eval(program); e != nil {
+			fmt.Fprintln(w, e.Inspect())
+		}
 		fmt.Fprint(w, PROMPT)
 	}
 }
