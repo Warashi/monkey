@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/Warashi/implement-interpreter-with-go/ast"
@@ -165,7 +164,6 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	if p.peekIs(token.SEMICOLON) {
 		p.nextToken()
 	}
-	log.Println(stmt)
 	return stmt
 }
 
