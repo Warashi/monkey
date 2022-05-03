@@ -112,3 +112,47 @@ func TestPrefixExpression(t *testing.T) {
 		})
 	}
 }
+
+func TestInfixExpression(t *testing.T) {
+	in := func(t token.Type, op string, left, right int64) ast.Statement {
+		l := &ast.IntegerLiteral{
+			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(left, 10)},
+			Value: left,
+		}
+		r := &ast.IntegerLiteral{
+			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(right, 10)},
+			Value: right,
+		}
+		return &ast.ExpressionStatement{
+			Token: l.Token,
+			Expression: &ast.InfixExpression{
+				Token:    token.Token{Type: t, Literal: op},
+				Operator: op,
+				Left:     l,
+				Right:    r,
+			},
+		}
+	}
+	tests := []struct {
+		input string
+		want  []ast.Statement
+	}{
+		{input: "5 + 6", want: []ast.Statement{in(token.PLUS, "+", 5, 6)}},
+		{input: "5 - 6", want: []ast.Statement{in(token.MINUS, "-", 5, 6)}},
+		{input: "5 * 6", want: []ast.Statement{in(token.ASTERISK, "*", 5, 6)}},
+		{input: "5 / 6", want: []ast.Statement{in(token.SLASH, "/", 5, 6)}},
+		{input: "5 > 6", want: []ast.Statement{in(token.GT, ">", 5, 6)}},
+		{input: "5 < 6", want: []ast.Statement{in(token.LT, "<", 5, 6)}},
+		{input: "5 == 6", want: []ast.Statement{in(token.EQ, "==", 5, 6)}},
+		{input: "5 != 6", want: []ast.Statement{in(token.NOT_EQ, "!=", 5, 6)}},
+	}
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}

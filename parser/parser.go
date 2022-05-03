@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/Warashi/implement-interpreter-with-go/ast"
@@ -26,6 +27,17 @@ const (
 	CALL
 )
 
+var precedences = map[token.Type]precedence{
+	token.EQ:       EQUALS,
+	token.NOT_EQ:   EQUALS,
+	token.LT:       LTGT,
+	token.GT:       LTGT,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.ASTERISK: PRODUCT,
+	token.SLASH:    PRODUCT,
+}
+
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, prefixParseFns: make(map[token.Type]prefixParseFn), infixParseFns: make(map[token.Type]infixParseFn)}
 
@@ -33,6 +45,9 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	for t := range precedences {
+		p.registerInfix(t, p.parseInfixExpression)
+	}
 
 	// current, peek をセット
 	p.nextToken()
@@ -86,6 +101,28 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return e
 }
 
+func (p *Parser) currentPrecedence() precedence {
+	if p, ok := precedences[p.current.Type]; ok {
+		return p
+	}
+	return LOWEST
+}
+
+func (p *Parser) peekPrecedence() precedence {
+	if p, ok := precedences[p.peek.Type]; ok {
+		return p
+	}
+	return LOWEST
+}
+
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	e := &ast.InfixExpression{Token: p.current, Operator: p.current.Literal, Left: left}
+	precedence := p.currentPrecedence()
+	p.nextToken()
+	e.Right = p.parseExpression(precedence)
+	return e
+}
+
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.current.Type {
 	case token.LET:
@@ -128,14 +165,26 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	if p.peekIs(token.SEMICOLON) {
 		p.nextToken()
 	}
+	log.Println(stmt)
 	return stmt
 }
 
 func (p *Parser) parseExpression(prec precedence) ast.Expression {
-	if prefix, ok := p.prefixParseFns[p.current.Type]; ok {
-		return prefix()
+	prefix, ok := p.prefixParseFns[p.current.Type]
+	if !ok {
+		p.errors = append(p.errors, fmt.Sprintf("no prefixParseFn found: %s", p.current.Type))
+		return nil
 	}
-	return nil
+	left := prefix()
+	for !p.peekIs(token.SEMICOLON) && prec < p.peekPrecedence() {
+		infix, ok := p.infixParseFns[p.peek.Type]
+		if !ok {
+			return left
+		}
+		p.nextToken()
+		left = infix(left)
+	}
+	return left
 }
 
 func (p *Parser) currentIs(t token.Type) bool {
