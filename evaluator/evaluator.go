@@ -74,7 +74,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 }
 
 func evalMinusOperatorExpression(right object.Object) object.Object {
-	if right.Type() != object.INTEGER_OBJ {
+	if right.Type() != object.TypeInteger {
 		return NULL
 	}
 	return object.Integer{Value: -right.(object.Integer).Value}
@@ -86,7 +86,7 @@ func evalInfixExpression(op string, left, right object.Object) object.Object {
 		return booleanObject(left == right)
 	case op == "!=":
 		return booleanObject(left != right)
-	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
+	case left.Type() == object.TypeInteger && right.Type() == object.TypeInteger:
 		return evalIntegerInfixExpression(op, left.(object.Integer), right.(object.Integer))
 	default:
 		return NULL
