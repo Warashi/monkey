@@ -58,3 +58,22 @@ func TestEvalBooleanExpression(t *testing.T) {
 		})
 	}
 }
+
+func TestBangOperator(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: "!true", want: BooleanObject(t, false)},
+		{input: "!false", want: BooleanObject(t, true)},
+		{input: "!5", want: BooleanObject(t, false)},
+		{input: "!!true", want: BooleanObject(t, true)},
+		{input: "!!false", want: BooleanObject(t, false)},
+		{input: "!!5", want: BooleanObject(t, true)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(t, tt.input))
+		})
+	}
+}
