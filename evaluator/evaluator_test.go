@@ -132,8 +132,8 @@ func TestReturnStatements(t *testing.T) {
 		{input: "9; return 2 * 5; 9;", want: testutil.IntegerObject(10)},
 		{input: "if (10 > 1) { return 10; }", want: testutil.IntegerObject(10)},
 		{input: "if (10 > 1) { if (10 > 1) { return 10; } return 1; }", want: testutil.IntegerObject(10)},
-		// {input: "let f = fn(x) { return x; x + 10; }; f(10);", want: testutil.IntegerObject(10)},
-		// {input: "let f = fn(x) { let result = x + 10; return result; return 10; }; f(10);", want: testutil.IntegerObject(20)},
+		{input: "let f = fn(x) { return x; x + 10; }; f(10);", want: testutil.IntegerObject(10)},
+		{input: "let f = fn(x) { let result = x + 10; return result; return 10; }; f(10);", want: testutil.IntegerObject(20)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
