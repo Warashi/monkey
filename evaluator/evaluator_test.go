@@ -38,6 +38,17 @@ func TestEvalIntegerExpression(t *testing.T) {
 		{input: "10", want: IntegerObject(t, 10)},
 		{input: "-5", want: IntegerObject(t, -5)},
 		{input: "-10", want: IntegerObject(t, -10)},
+		{input: "5 + 5 + 5 + 5 - 10", want: IntegerObject(t, 10)},
+		{input: "2 * 2 * 2 * 2 * 2", want: IntegerObject(t, 32)},
+		{input: "-50 + 100 + -50", want: IntegerObject(t, 0)},
+		{input: "5 * 2 + 10", want: IntegerObject(t, 20)},
+		{input: "5 + 2 * 10", want: IntegerObject(t, 25)},
+		{input: "20 + 2 * -10", want: IntegerObject(t, 0)},
+		{input: "50 / 2 * 2 + 10", want: IntegerObject(t, 60)},
+		{input: "2 * (5 + 10)", want: IntegerObject(t, 30)},
+		{input: "3 * 3 * 3 + 10", want: IntegerObject(t, 37)},
+		{input: "3 * (3 * 3) + 10", want: IntegerObject(t, 37)},
+		{input: "(5 + 10 * 2 + 15 / 3) * 2 + -10", want: IntegerObject(t, 50)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
