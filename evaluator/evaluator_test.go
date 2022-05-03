@@ -17,12 +17,12 @@ func Eval(t *testing.T, input string) object.Object {
 
 func IntegerObject(t *testing.T, val int64) object.Object {
 	t.Helper()
-	return &object.Integer{Value: val}
+	return object.Integer{Value: val}
 }
 
 func BooleanObject(t *testing.T, val bool) object.Object {
 	t.Helper()
-	return &object.Boolean{Value: val}
+	return object.Boolean{Value: val}
 }
 
 func NullObject(t *testing.T) object.Object {

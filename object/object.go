@@ -25,11 +25,11 @@ type Boolean struct {
 
 type Null struct{}
 
-func (o *Integer) Type() Type      { return INTEGER_OBJ }
-func (o *Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
+func (o Integer) Type() Type      { return INTEGER_OBJ }
+func (o Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
 
-func (o *Boolean) Type() Type      { return BOOLEAN_OBJ }
-func (o *Boolean) Inspect() string { return strconv.FormatBool(o.Value) }
+func (o Boolean) Type() Type      { return BOOLEAN_OBJ }
+func (o Boolean) Inspect() string { return strconv.FormatBool(o.Value) }
 
 func (o Null) Type() Type      { return NULL_OJB }
 func (o Null) Inspect() string { return "null" }
