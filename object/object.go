@@ -8,6 +8,7 @@ const (
 	INTEGER_OBJ Type = "INTEGER"
 	BOOLEAN_OBJ Type = "BOOLEAN"
 	NULL_OJB    Type = "NULL"
+	RETURN_OBJ  Type = "RETURN"
 )
 
 type Object interface {
@@ -25,6 +26,10 @@ type Boolean struct {
 
 type Null struct{}
 
+type Return struct {
+	Value Object
+}
+
 func (o Integer) Type() Type      { return INTEGER_OBJ }
 func (o Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
 
@@ -33,3 +38,6 @@ func (o Boolean) Inspect() string { return strconv.FormatBool(o.Value) }
 
 func (o Null) Type() Type      { return NULL_OJB }
 func (o Null) Inspect() string { return "null" }
+
+func (o Return) Type() Type      { return RETURN_OBJ }
+func (o Return) Inspect() string { return o.Value.Inspect() }
