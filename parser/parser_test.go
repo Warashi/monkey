@@ -139,6 +139,51 @@ func TestFunctionLiteralExpression(t *testing.T) {
 	assert.Equal(t, wants, program.Statements)
 }
 
+func TestFunctionParameterParsing(t *testing.T) {
+	buildWant := func(params ...string) []ast.Statement {
+		id := func(name string) *ast.Identifier {
+			return &ast.Identifier{
+				Token: token.Token{Type: token.IDENT, Literal: name},
+				Value: name,
+			}
+		}
+		var ids []*ast.Identifier
+		for _, p := range params {
+			ids = append(ids, id(p))
+		}
+		return []ast.Statement{&ast.ExpressionStatement{
+			Token: token.Token{Type: token.FUNCTION, Literal: "fn"},
+			Expression: &ast.FunctionLiteral{
+				Token:      token.Token{Type: token.FUNCTION, Literal: "fn"},
+				Parameters: ids,
+				Body: &ast.BlockStatement{
+					Token: token.Token{Type: token.LBRACE, Literal: "{"},
+				},
+			},
+		}}
+	}
+
+	tests := []struct {
+		input string
+		want  []ast.Statement
+	}{
+		{input: "fn() {};", want: buildWant()},
+		{input: "fn(x) {};", want: buildWant("x")},
+		{input: "fn(x, y) {};", want: buildWant("x", "y")},
+		{input: "fn(x, y, z) {};", want: buildWant("x", "y", "z")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}
+
 func TestPrefixExpression(t *testing.T) {
 	pre := func(t token.Type, op string, v int64) ast.Statement {
 		return &ast.ExpressionStatement{
