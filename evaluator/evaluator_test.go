@@ -276,3 +276,22 @@ func TestFunctionObject(t *testing.T) {
 		})
 	}
 }
+
+func TestFunctionApplication(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: "let identity = fn(x) { x; }; identity(5);", want: IntegerObject(5)},
+		{input: "let identity = fn(x) { return x; }; identity(5);", want: IntegerObject(5)},
+		{input: "let double = fn(x) {  x * 2; }; double(5);", want: IntegerObject(10)},
+		{input: "let add = fn(x, y) { x + y; }; add(5, 5);", want: IntegerObject(10)},
+		{input: "let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", want: IntegerObject(20)},
+		{input: "fn(x) { x; }(5);", want: IntegerObject(5)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(tt.input))
+		})
+	}
+}

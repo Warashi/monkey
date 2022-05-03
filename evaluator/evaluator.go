@@ -59,6 +59,16 @@ func Eval(n ast.Node, env object.Environment) object.Object {
 		return evalIdentifier(n, env)
 	case *ast.FunctionLiteral:
 		return object.Function{Parameters: n.Parameters, Body: n.Body, Env: env}
+	case *ast.CallExpression:
+		fn := Eval(n.Function, env)
+		if isError(fn) {
+			return fn
+		}
+		args := evalExpresssions(n.Arguments, env)
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+		return applyFunciton(fn, args)
 	default:
 		return newErrorf("unknown node: %T", n)
 	}
@@ -188,6 +198,41 @@ func evalIdentifier(n *ast.Identifier, env object.Environment) object.Object {
 		return val
 	}
 	return newErrorf("identifier not found: %s", n.Value)
+}
+
+func evalExpresssions(e []ast.Expression, env object.Environment) []object.Object {
+	result := make([]object.Object, 0, len(e))
+	for _, e := range e {
+		r := Eval(e, env)
+		if isError(r) {
+			return []object.Object{r}
+		}
+		result = append(result, r)
+	}
+	return result
+}
+
+func applyFunciton(fn object.Object, args []object.Object) object.Object {
+	if fn.Type() != object.TypeFunction {
+		return newErrorf("not a function: %s", fn.Type())
+	}
+	f := fn.(object.Function)
+	return unwrapReturnValue(Eval(f.Body, extendFunctionEnv(f, args)))
+}
+
+func unwrapReturnValue(o object.Object) object.Object {
+	if o.Type() == object.TypeReturn {
+		return o.(object.Return).Value
+	}
+	return o
+}
+
+func extendFunctionEnv(fn object.Function, args []object.Object) object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+	for i, param := range fn.Parameters {
+		env.Set(param.Value, args[i])
+	}
+	return env
 }
 
 func isTruthy(o object.Object) bool {
