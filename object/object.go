@@ -22,6 +22,7 @@ const (
 	TypeError
 	TypeFunction
 	TypeBuiltin
+	TypeArray
 )
 
 type Object interface {
@@ -61,6 +62,10 @@ type Builtin struct {
 	Fn BuiltinFunction
 }
 
+type Array struct {
+	Elements []Object
+}
+
 func (o Integer) Type() Type      { return TypeInteger }
 func (o Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
 
@@ -96,3 +101,16 @@ func (o Function) Inspect() string {
 
 func (o Builtin) Type() Type      { return TypeBuiltin }
 func (o Builtin) Inspect() string { return "builtin function" }
+
+func (o Array) Type() Type { return TypeArray }
+func (o Array) Inspect() string {
+	var b strings.Builder
+	elements := make([]string, 0, len(o.Elements))
+	for _, e := range o.Elements {
+		elements = append(elements, e.Inspect())
+	}
+	b.WriteString("[")
+	b.WriteString(strings.Join(elements, ", "))
+	b.WriteString("]")
+	return b.String()
+}

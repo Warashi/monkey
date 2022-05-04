@@ -253,3 +253,17 @@ func TestBuiltinFunctions(t *testing.T) {
 		})
 	}
 }
+
+func TestArrayLiteral(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: `[1, 2 * 3, 4 + 5]`, want: ArrayObject(IntegerObject(1), IntegerObject(6), IntegerObject(9))},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(tt.input))
+		})
+	}
+}

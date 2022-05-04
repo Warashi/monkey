@@ -32,3 +32,7 @@ func FunctionObject(env object.Environment, body *ast.BlockStatement, params ...
 		Env:        env,
 	}
 }
+
+func ArrayObject(elements ...object.Object) object.Object {
+	return object.Array{Elements: elements}
+}

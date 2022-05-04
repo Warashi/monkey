@@ -71,6 +71,12 @@ func Eval(n ast.Node, env object.Environment) object.Object {
 			return args[0]
 		}
 		return applyFunciton(fn, args)
+	case *ast.ArrayLiteral:
+		elements := evalExpresssions(n.Elements, env)
+		if len(elements) == 1 && isError(elements[0]) {
+			return elements[0]
+		}
+		return object.Array{Elements: elements}
 	default:
 		return newErrorf("unknown node: %T", n)
 	}
