@@ -49,6 +49,9 @@ func TestEvalStringExpression(t *testing.T) {
 		want  object.Object
 	}{
 		{input: `"Hello, world!"`, want: StringObject("Hello, world!")},
+		{input: `"Hello," + " " + "world!"`, want: StringObject("Hello, world!")},
+		{input: `"a" < "b"`, want: BooleanObject(true)},
+		{input: `"a" > "b"`, want: BooleanObject(false)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
@@ -165,6 +168,7 @@ func TestErrorHandling(t *testing.T) {
 		{input: "if (10 > 1) { true + false; }", want: ErrorObject("unknown operator: Boolean + Boolean")},
 		{input: "if (10 > 1) { if (10 > 1) { return true + false; } return 1; }", want: ErrorObject("unknown operator: Boolean + Boolean")},
 		{input: "foobar", want: ErrorObject("identifier not found: foobar")},
+		{input: `"Hello" - "world"`, want: ErrorObject("unknown operator: String - String")},
 	}
 
 	for _, tt := range tests {
