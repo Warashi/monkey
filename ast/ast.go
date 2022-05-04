@@ -119,6 +119,25 @@ func (e *FunctionLiteral) String() string {
 	return b.String()
 }
 
+type ArrayLiteral struct {
+	Token    token.Token
+	Elements []Expression
+}
+
+func (e *ArrayLiteral) expressionNode()      {}
+func (e *ArrayLiteral) TokenLiteral() string { return e.Token.Literal }
+func (e *ArrayLiteral) String() string {
+	var b strings.Builder
+	elements := make([]string, 0, len(e.Elements))
+	for _, e := range e.Elements {
+		elements = append(elements, e.String())
+	}
+	b.WriteString("[")
+	b.WriteString(strings.Join(elements, ","))
+	b.WriteString("]")
+	return b.String()
+}
+
 type PrefixExpression struct {
 	Token    token.Token
 	Operator string

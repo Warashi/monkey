@@ -73,6 +73,13 @@ func FunctionLiteral(body *ast.BlockStatement, params ...*ast.Identifier) *ast.F
 	}
 }
 
+func ArrayLiteral(elements ...ast.Expression) *ast.ArrayLiteral {
+	return &ast.ArrayLiteral{
+		Token:    token.Token{Type: token.LBLACKET, Literal: "["},
+		Elements: elements,
+	}
+}
+
 func IfExpression(cond ast.Expression, cons, alt *ast.BlockStatement) *ast.IfExpression {
 	return &ast.IfExpression{
 		Token:       token.Token{Type: token.IF, Literal: "if"},

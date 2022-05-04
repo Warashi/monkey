@@ -128,6 +128,33 @@ func TestFunctionParameterParsing(t *testing.T) {
 		})
 	}
 }
+func TestArrayLiteralParsing(t *testing.T) {
+	tests := []struct {
+		input string
+		want  []ast.Statement
+	}{
+		{
+			input: "[1, 2 * 3, 4 + 5]",
+			want: []ast.Statement{ExpressionStatement(
+				ArrayLiteral(
+					IntegerLiteral(1),
+					InfixExpression(Asterisk, IntegerLiteral(2), IntegerLiteral(3)),
+					InfixExpression(Plus, IntegerLiteral(4), IntegerLiteral(5)),
+				),
+			)},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}
 
 func TestPrefixExpression(t *testing.T) {
 	pre := func(op token.Token, v int64) ast.Statement {

@@ -51,6 +51,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.IF, p.parseIfExpression)
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
+	p.registerPrefix(token.LBLACKET, p.parseArrayLiteral)
+
 	p.registerInfix(token.EQ, p.parseInfixExpression)
 	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
 	p.registerInfix(token.LT, p.parseInfixExpression)
@@ -240,6 +242,27 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
 	e := p.parseExpression(LOWEST)
 	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+	return e
+}
+
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	e := &ast.ArrayLiteral{Token: p.current}
+	if p.peekIs(token.RBLACKET) {
+		p.nextToken()
+		return e
+	}
+	p.nextToken()
+
+	e.Elements = append(e.Elements, p.parseExpression(LOWEST))
+	for p.peekIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		e.Elements = append(e.Elements, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(token.RBLACKET) {
 		return nil
 	}
 	return e
