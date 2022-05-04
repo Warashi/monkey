@@ -58,6 +58,13 @@ func IntegerLiteral(val int64) *ast.IntegerLiteral {
 	}
 }
 
+func StringLiteral(val string) *ast.StringLiteral {
+	return &ast.StringLiteral{
+		Token: token.Token{Type: token.STRING, Literal: val},
+		Value: val,
+	}
+}
+
 func FunctionLiteral(body *ast.BlockStatement, params ...*ast.Identifier) *ast.FunctionLiteral {
 	return &ast.FunctionLiteral{
 		Token:      token.Token{Type: token.FUNCTION, Literal: "fn"},

@@ -62,6 +62,16 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	assert.Equal(t, wants, program.Statements)
 }
 
+func TestStringLiteralExpression(t *testing.T) {
+	p := parser.New(lexer.New(testdata.StringLiteralExpression))
+	program := p.Parse()
+	require.Empty(t, p.Errors())
+	require.NotNil(t, program)
+
+	wants := []ast.Statement{ExpressionStatement(StringLiteral("hello, world"))}
+	assert.Equal(t, wants, program.Statements)
+}
+
 func TestBooleanLiteralExpression(t *testing.T) {
 	p := parser.New(lexer.New(testdata.BooleanLiteralExpression))
 	program := p.Parse()

@@ -79,6 +79,15 @@ func (e *IntegerLiteral) expressionNode()      {}
 func (e *IntegerLiteral) TokenLiteral() string { return e.Token.Literal }
 func (e *IntegerLiteral) String() string       { return e.Token.Literal }
 
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (e *StringLiteral) expressionNode()      {}
+func (e *StringLiteral) TokenLiteral() string { return e.Token.Literal }
+func (e *StringLiteral) String() string       { return e.Token.Literal }
+
 type BooleanLiteral struct {
 	Token token.Token
 	Value bool
