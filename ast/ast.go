@@ -133,7 +133,7 @@ func (e *ArrayLiteral) String() string {
 		elements = append(elements, e.String())
 	}
 	b.WriteString("[")
-	b.WriteString(strings.Join(elements, ","))
+	b.WriteString(strings.Join(elements, ", "))
 	b.WriteString("]")
 	return b.String()
 }
@@ -172,6 +172,23 @@ func (e *InfixExpression) String() string {
 	b.WriteString(" ")
 	b.WriteString(e.Right.String())
 	b.WriteString(")")
+	return b.String()
+}
+
+type IndexExpression struct {
+	Token       token.Token
+	Left, Right Expression
+}
+
+func (e *IndexExpression) expressionNode()      {}
+func (e *IndexExpression) TokenLiteral() string { return e.Token.Literal }
+func (e *IndexExpression) String() string {
+	var b strings.Builder
+	b.WriteString("(")
+	b.WriteString(e.Left.String())
+	b.WriteString("[")
+	b.WriteString(e.Right.String())
+	b.WriteString("])")
 	return b.String()
 }
 

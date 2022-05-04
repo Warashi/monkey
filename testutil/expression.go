@@ -44,6 +44,14 @@ func InfixExpression(op token.Token, left, right ast.Expression) *ast.InfixExpre
 	}
 }
 
+func IndexExpression(left, right ast.Expression) *ast.IndexExpression {
+	return &ast.IndexExpression{
+		Token: Token(token.LBLACKET, "["),
+		Left:  left,
+		Right: right,
+	}
+}
+
 func Identifier(name string) *ast.Identifier {
 	return &ast.Identifier{
 		Token: token.Token{Type: token.IDENT, Literal: name},

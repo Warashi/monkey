@@ -235,6 +235,8 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{input: "a + add(b * c) + d", want: "((a + add((b * c))) + d)"},
 		{input: "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", want: "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"},
 		{input: "add(a + b + c * d / f + g)", want: "add((((a + b) + ((c * d) / f)) + g))"},
+		{input: "a * [1, 2, 3, 4][b * c] * d", want: "((a * ([1, 2, 3, 4][(b * c)])) * d)"},
+		{input: "add(a * b[2], b[1], 2 * [1, 2][1])", want: "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))"},
 		{input: "", want: ""},
 	}
 	for _, tt := range tests {
@@ -307,6 +309,30 @@ func TestCallExpression(t *testing.T) {
 					InfixExpression(Asterisk, IntegerLiteral(2), IntegerLiteral(3)),
 					InfixExpression(Plus, IntegerLiteral(4), IntegerLiteral(5))),
 			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}
+
+func TestIndexExpressionParsing(t *testing.T) {
+	tests := []struct {
+		input string
+		want  []ast.Statement
+	}{
+		{
+			input: "myArray[1 + 2]",
+			want: []ast.Statement{ExpressionStatement(
+				IndexExpression(Identifier("myArray"), InfixExpression(Plus, IntegerLiteral(1), IntegerLiteral(2))),
+			)},
 		},
 	}
 
