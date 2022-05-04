@@ -267,3 +267,29 @@ func TestArrayLiteral(t *testing.T) {
 		})
 	}
 }
+
+func TestArrayIndexing(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: `[1][0]`, want: IntegerObject(1)},
+		{input: `[0, 1][1]`, want: IntegerObject(1)},
+		{input: `[0, 1, 2][1]`, want: IntegerObject(1)},
+		{input: `let x = [1]; x[0]`, want: IntegerObject(1)},
+		{input: `let x = [0, 1]; x[1]`, want: IntegerObject(1)},
+		{input: `let x = [0, 1, 2]; x[1]`, want: IntegerObject(1)},
+		{input: `let x = [0, 1, 2]; x[0] + x[1] + x[2]`, want: IntegerObject(3)},
+		{input: `let i = 0; [1][i]`, want: IntegerObject(1)},
+		{input: `[1, 2, 3][1 + 1]`, want: IntegerObject(3)},
+		{input: `let x = [1, 2, 3]; let i = x[1]; x[i]`, want: IntegerObject(3)},
+		{input: `let x = [1, 2, 3]; x[x[1]]`, want: IntegerObject(3)},
+		{input: `[1, 2, 3][3]`, want: ErrorObject("index out of range. index=3, len=3")},
+		{input: `[1, 2, 3][-1]`, want: ErrorObject("index out of range. index=-1, len=3")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(tt.input))
+		})
+	}
+}

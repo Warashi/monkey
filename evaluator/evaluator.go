@@ -77,6 +77,16 @@ func Eval(n ast.Node, env object.Environment) object.Object {
 			return elements[0]
 		}
 		return object.Array{Elements: elements}
+	case *ast.IndexExpression:
+		left := Eval(n.Left, env)
+		if isError(left) {
+			return left
+		}
+		right := Eval(n.Right, env)
+		if isError(right) {
+			return right
+		}
+		return evalIndexExpression(left, right)
 	default:
 		return newErrorf("unknown node: %T", n)
 	}
@@ -167,6 +177,19 @@ func evalInfixExpression(op string, left, right object.Object) object.Object {
 		return newErrorf("type mismatch: %s %s %s", left.Type(), op, right.Type())
 	default:
 		return newErrorf("unknown operator: %s %s %s", left.Type(), op, right.Type())
+	}
+}
+
+func evalIndexExpression(left, right object.Object) object.Object {
+	switch {
+	case left.Type() == object.TypeArray && right.Type() == object.TypeInteger:
+		left, right := left.(object.Array), right.(object.Integer)
+		if right.Value < 0 || int64(len(left.Elements)) <= right.Value {
+			return newErrorf("index out of range. index=%d, len=%d", right.Value, len(left.Elements))
+		}
+		return left.Elements[right.Value]
+	default:
+		return newErrorf("type mismatch: %s[%s]", left.Type(), right.Type())
 	}
 }
 
