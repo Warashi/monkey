@@ -8,6 +8,7 @@ import (
 	"github.com/Warashi/implement-interpreter-with-go/lexer"
 	"github.com/Warashi/implement-interpreter-with-go/parser"
 	"github.com/Warashi/implement-interpreter-with-go/parser/testdata"
+	. "github.com/Warashi/implement-interpreter-with-go/testutil"
 	"github.com/Warashi/implement-interpreter-with-go/token"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,17 +20,11 @@ func TestLetStatement(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	let := func(name string, value int64) ast.Statement {
-		return &ast.LetStatement{
-			Token: token.Token{Type: token.LET, Literal: "let"},
-			Name:  &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: name}, Value: name},
-			Value: &ast.IntegerLiteral{
-				Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
-				Value: value,
-			},
-		}
+	wants := []ast.Statement{
+		LetStatement(Identifier("x"), IntegerLiteral(5)),
+		LetStatement(Identifier("y"), IntegerLiteral(10)),
+		LetStatement(Identifier("foobar"), IntegerLiteral(838383)),
 	}
-	wants := []ast.Statement{let("x", 5), let("y", 10), let("foobar", 838383)}
 	assert.Equal(t, wants, program.Statements)
 }
 
@@ -39,16 +34,11 @@ func TestReturnStatement(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	ret := func(value int64) ast.Statement {
-		return &ast.ReturnStatement{
-			Token: token.Token{Type: token.RETURN, Literal: "return"},
-			Value: &ast.IntegerLiteral{
-				Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
-				Value: value,
-			},
-		}
+	wants := []ast.Statement{
+		ReturnStatement(IntegerLiteral(5)),
+		ReturnStatement(IntegerLiteral(10)),
+		ReturnStatement(IntegerLiteral(993322)),
 	}
-	wants := []ast.Statement{ret(5), ret(10), ret(993322)}
 	assert.Equal(t, wants, program.Statements)
 }
 
@@ -58,16 +48,7 @@ func TestIdentifierExpression(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	id := func(name string) ast.Statement {
-		return &ast.ExpressionStatement{
-			Token: token.Token{Type: token.IDENT, Literal: name},
-			Expression: &ast.Identifier{
-				Token: token.Token{Type: token.IDENT, Literal: name},
-				Value: name,
-			},
-		}
-	}
-	wants := []ast.Statement{id("foobar")}
+	wants := []ast.Statement{ExpressionStatement(Identifier("foobar"))}
 	assert.Equal(t, wants, program.Statements)
 }
 
@@ -77,16 +58,7 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	integer := func(value int64) ast.Statement {
-		return &ast.ExpressionStatement{
-			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
-			Expression: &ast.IntegerLiteral{
-				Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(value, 10)},
-				Value: value,
-			},
-		}
-	}
-	wants := []ast.Statement{integer(5)}
+	wants := []ast.Statement{ExpressionStatement(IntegerLiteral(5))}
 	assert.Equal(t, wants, program.Statements)
 }
 
@@ -96,21 +68,9 @@ func TestBooleanLiteralExpression(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	trueExp := &ast.ExpressionStatement{
-		Token: token.Token{Type: token.TRUE, Literal: "true"},
-		Expression: &ast.BooleanLiteral{
-			Token: token.Token{Type: token.TRUE, Literal: "true"},
-			Value: true,
-		},
-	}
-	falseExp := &ast.ExpressionStatement{
-		Token: token.Token{Type: token.FALSE, Literal: "false"},
-		Expression: &ast.BooleanLiteral{
-			Token: token.Token{Type: token.FALSE, Literal: "false"},
-			Value: false,
-		},
-	}
-	wants := []ast.Statement{trueExp, falseExp, trueExp, falseExp}
+	true := ExpressionStatement(True)
+	false := ExpressionStatement(False)
+	wants := []ast.Statement{true, false, true, false}
 	assert.Equal(t, wants, program.Statements)
 }
 
@@ -120,56 +80,22 @@ func TestFunctionLiteralExpression(t *testing.T) {
 	require.Empty(t, p.Errors())
 	require.NotNil(t, program)
 
-	x := &ast.Identifier{
-		Token: token.Token{Type: token.IDENT, Literal: "x"},
-		Value: "x",
-	}
-	y := &ast.Identifier{
-		Token: token.Token{Type: token.IDENT, Literal: "y"},
-		Value: "y",
-	}
-	fn := &ast.FunctionLiteral{
-		Token:      token.Token{Type: token.FUNCTION, Literal: "fn"},
-		Parameters: []*ast.Identifier{x, y},
-		Body: &ast.BlockStatement{
-			Token: token.Token{Type: token.LBRACE, Literal: "{"},
-			Statements: []ast.Statement{&ast.ExpressionStatement{
-				Token: token.Token{Type: token.IDENT, Literal: "x"},
-				Expression: &ast.InfixExpression{
-					Token:    token.Token{Type: token.PLUS, Literal: "+"},
-					Operator: "+",
-					Left:     x,
-					Right:    y,
-				},
-			}},
-		},
-	}
-	wants := []ast.Statement{&ast.ExpressionStatement{Token: token.Token{Type: token.FUNCTION, Literal: "fn"}, Expression: fn}}
+	x := Identifier("x")
+	y := Identifier("y")
+	fn := FunctionLiteral(
+		BlockStatement(ExpressionStatement(InfixExpression(Plus, x, y))),
+		x, y)
+	wants := []ast.Statement{ExpressionStatement(fn)}
 	assert.Equal(t, wants, program.Statements)
 }
 
 func TestFunctionParameterParsing(t *testing.T) {
 	buildWant := func(params ...string) []ast.Statement {
-		id := func(name string) *ast.Identifier {
-			return &ast.Identifier{
-				Token: token.Token{Type: token.IDENT, Literal: name},
-				Value: name,
-			}
-		}
 		var ids []*ast.Identifier
 		for _, p := range params {
-			ids = append(ids, id(p))
+			ids = append(ids, Identifier(p))
 		}
-		return []ast.Statement{&ast.ExpressionStatement{
-			Token: token.Token{Type: token.FUNCTION, Literal: "fn"},
-			Expression: &ast.FunctionLiteral{
-				Token:      token.Token{Type: token.FUNCTION, Literal: "fn"},
-				Parameters: ids,
-				Body: &ast.BlockStatement{
-					Token: token.Token{Type: token.LBRACE, Literal: "{"},
-				},
-			},
-		}}
+		return []ast.Statement{ExpressionStatement(FunctionLiteral(BlockStatement(), ids...))}
 	}
 
 	tests := []struct {
@@ -194,25 +120,15 @@ func TestFunctionParameterParsing(t *testing.T) {
 }
 
 func TestPrefixExpression(t *testing.T) {
-	pre := func(t token.Type, op string, v int64) ast.Statement {
-		return &ast.ExpressionStatement{
-			Token: token.Token{Type: t, Literal: op},
-			Expression: &ast.PrefixExpression{
-				Token:    token.Token{Type: t, Literal: op},
-				Operator: op,
-				Right: &ast.IntegerLiteral{
-					Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(v, 10)},
-					Value: v,
-				},
-			},
-		}
+	pre := func(op token.Token, v int64) ast.Statement {
+		return ExpressionStatement(PrefixExpression(op, IntegerLiteral(v)))
 	}
 	tests := []struct {
 		input string
 		want  []ast.Statement
 	}{
-		{input: "!5", want: []ast.Statement{pre(token.BANG, "!", 5)}},
-		{input: "-15", want: []ast.Statement{pre(token.MINUS, "-", 15)}},
+		{input: "!5", want: []ast.Statement{pre(Bang, 5)}},
+		{input: "-15", want: []ast.Statement{pre(Minus, 15)}},
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
@@ -226,37 +142,21 @@ func TestPrefixExpression(t *testing.T) {
 }
 
 func TestInfixExpression(t *testing.T) {
-	in := func(t token.Type, op string, left, right int64) ast.Statement {
-		l := &ast.IntegerLiteral{
-			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(left, 10)},
-			Value: left,
-		}
-		r := &ast.IntegerLiteral{
-			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(right, 10)},
-			Value: right,
-		}
-		return &ast.ExpressionStatement{
-			Token: l.Token,
-			Expression: &ast.InfixExpression{
-				Token:    token.Token{Type: t, Literal: op},
-				Operator: op,
-				Left:     l,
-				Right:    r,
-			},
-		}
+	in := func(op token.Token, left, right int64) ast.Statement {
+		return ExpressionStatement(InfixExpression(op, IntegerLiteral(left), IntegerLiteral(right)))
 	}
 	tests := []struct {
 		input string
 		want  []ast.Statement
 	}{
-		{input: "5 + 6", want: []ast.Statement{in(token.PLUS, "+", 5, 6)}},
-		{input: "5 - 6", want: []ast.Statement{in(token.MINUS, "-", 5, 6)}},
-		{input: "5 * 6", want: []ast.Statement{in(token.ASTERISK, "*", 5, 6)}},
-		{input: "5 / 6", want: []ast.Statement{in(token.SLASH, "/", 5, 6)}},
-		{input: "5 > 6", want: []ast.Statement{in(token.GT, ">", 5, 6)}},
-		{input: "5 < 6", want: []ast.Statement{in(token.LT, "<", 5, 6)}},
-		{input: "5 == 6", want: []ast.Statement{in(token.EQ, "==", 5, 6)}},
-		{input: "5 != 6", want: []ast.Statement{in(token.NOT_EQ, "!=", 5, 6)}},
+		{input: "5 + 6", want: []ast.Statement{in(Plus, 5, 6)}},
+		{input: "5 - 6", want: []ast.Statement{in(Minus, 5, 6)}},
+		{input: "5 * 6", want: []ast.Statement{in(Asterisk, 5, 6)}},
+		{input: "5 / 6", want: []ast.Statement{in(Slash, 5, 6)}},
+		{input: "5 > 6", want: []ast.Statement{in(GT, 5, 6)}},
+		{input: "5 < 6", want: []ast.Statement{in(LT, 5, 6)}},
+		{input: "5 == 6", want: []ast.Statement{in(Equal, 5, 6)}},
+		{input: "5 != 6", want: []ast.Statement{in(NotEqual, 5, 6)}},
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
@@ -319,101 +219,25 @@ func TestIfExpression(t *testing.T) {
 		{
 			input: "if (x < y) { x }",
 			want: []ast.Statement{
-				&ast.ExpressionStatement{
-					Token: token.Token{Type: token.IF, Literal: "if"},
-					Expression: &ast.IfExpression{
-						Token: token.Token{Type: token.IF, Literal: "if"},
-						Condition: &ast.InfixExpression{
-							Token:    token.Token{Type: token.LT, Literal: "<"},
-							Operator: "<",
-							Left: &ast.Identifier{
-								Token: token.Token{Type: token.IDENT, Literal: "x"},
-								Value: "x",
-							},
-							Right: &ast.Identifier{
-								Token: token.Token{Type: token.IDENT, Literal: "y"},
-								Value: "y",
-							},
-						},
-						Consequence: &ast.BlockStatement{
-							Token: token.Token{Type: token.LBRACE, Literal: "{"},
-							Statements: []ast.Statement{
-								&ast.ExpressionStatement{
-									Token: token.Token{
-										Type:    token.IDENT,
-										Literal: "x",
-									},
-									Expression: &ast.Identifier{
-										Token: token.Token{
-											Type:    token.IDENT,
-											Literal: "x",
-										},
-										Value: "x",
-									},
-								},
-							},
-						},
-					},
-				},
+				ExpressionStatement(
+					IfExpression(
+						InfixExpression(LT, Identifier("x"), Identifier("y")),
+						BlockStatement(ExpressionStatement(Identifier("x"))),
+						nil,
+					),
+				),
 			},
 		},
 		{
 			input: "if (x < y) { x } else { y }",
 			want: []ast.Statement{
-				&ast.ExpressionStatement{
-					Token: token.Token{Type: token.IF, Literal: "if"},
-					Expression: &ast.IfExpression{
-						Token: token.Token{Type: token.IF, Literal: "if"},
-						Condition: &ast.InfixExpression{
-							Token:    token.Token{Type: token.LT, Literal: "<"},
-							Operator: "<",
-							Left: &ast.Identifier{
-								Token: token.Token{Type: token.IDENT, Literal: "x"},
-								Value: "x",
-							},
-							Right: &ast.Identifier{
-								Token: token.Token{Type: token.IDENT, Literal: "y"},
-								Value: "y",
-							},
-						},
-						Consequence: &ast.BlockStatement{
-							Token: token.Token{Type: token.LBRACE, Literal: "{"},
-							Statements: []ast.Statement{
-								&ast.ExpressionStatement{
-									Token: token.Token{
-										Type:    token.IDENT,
-										Literal: "x",
-									},
-									Expression: &ast.Identifier{
-										Token: token.Token{
-											Type:    token.IDENT,
-											Literal: "x",
-										},
-										Value: "x",
-									},
-								},
-							},
-						},
-						Alternative: &ast.BlockStatement{
-							Token: token.Token{Type: token.LBRACE, Literal: "{"},
-							Statements: []ast.Statement{
-								&ast.ExpressionStatement{
-									Token: token.Token{
-										Type:    token.IDENT,
-										Literal: "y",
-									},
-									Expression: &ast.Identifier{
-										Token: token.Token{
-											Type:    token.IDENT,
-											Literal: "y",
-										},
-										Value: "y",
-									},
-								},
-							},
-						},
-					},
-				},
+				ExpressionStatement(
+					IfExpression(
+						InfixExpression(LT, Identifier("x"), Identifier("y")),
+						BlockStatement(ExpressionStatement(Identifier("x"))),
+						BlockStatement(ExpressionStatement(Identifier("y"))),
+					),
+				),
 			},
 		},
 	}
@@ -430,39 +254,9 @@ func TestIfExpression(t *testing.T) {
 }
 
 func TestCallExpression(t *testing.T) {
-	id := func(name string) *ast.Identifier {
-		return &ast.Identifier{
-			Token: token.Token{Type: token.IDENT, Literal: name},
-			Value: name,
-		}
+	buildWant := func(fn string, args ...ast.Expression) ast.Statement {
+		return ExpressionStatement(CallExpression(Identifier(fn), args...))
 	}
-	integer := func(val int64) *ast.IntegerLiteral {
-		return &ast.IntegerLiteral{
-			Token: token.Token{Type: token.INT, Literal: strconv.FormatInt(val, 10)},
-			Value: val,
-		}
-	}
-	infix := func(tok token.Token, left, right ast.Expression) *ast.InfixExpression {
-		return &ast.InfixExpression{
-			Token:    tok,
-			Operator: tok.Literal,
-			Left:     left,
-			Right:    right,
-		}
-	}
-	buildWant := func(fn string, args ...ast.Expression) []ast.Statement {
-		return []ast.Statement{&ast.ExpressionStatement{
-			Token: token.Token{Type: token.IDENT, Literal: fn},
-			Expression: &ast.CallExpression{
-				Token:     token.Token{Type: token.LPAREN, Literal: "("},
-				Function:  id(fn),
-				Arguments: args,
-			},
-		}}
-	}
-
-	asterisk := token.Token{Type: token.ASTERISK, Literal: "*"}
-	plus := token.Token{Type: token.PLUS, Literal: "+"}
 
 	tests := []struct {
 		input string
@@ -470,7 +264,12 @@ func TestCallExpression(t *testing.T) {
 	}{
 		{
 			input: "add(1, 2 * 3, 4 + 5)",
-			want:  buildWant("add", integer(1), infix(asterisk, integer(2), integer(3)), infix(plus, integer(4), integer(5))),
+			want: []ast.Statement{
+				buildWant("add",
+					IntegerLiteral(1),
+					InfixExpression(Asterisk, IntegerLiteral(2), IntegerLiteral(3)),
+					InfixExpression(Plus, IntegerLiteral(4), IntegerLiteral(5))),
+			},
 		},
 	}
 

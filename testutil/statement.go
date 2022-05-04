@@ -14,7 +14,22 @@ func BlockStatement(statements ...ast.Statement) *ast.BlockStatement {
 
 func ExpressionStatement(e ast.Expression) *ast.ExpressionStatement {
 	return &ast.ExpressionStatement{
-		Token:      Token(e),
+		Token:      TokenOf(e),
 		Expression: e,
+	}
+}
+
+func LetStatement(name *ast.Identifier, value ast.Expression) *ast.LetStatement {
+	return &ast.LetStatement{
+		Token: token.Token{Type: token.LET, Literal: "let"},
+		Name:  name,
+		Value: value,
+	}
+}
+
+func ReturnStatement(value ast.Expression) *ast.ReturnStatement {
+	return &ast.ReturnStatement{
+		Token: token.Token{Type: token.RETURN, Literal: "return"},
+		Value: value,
 	}
 }
