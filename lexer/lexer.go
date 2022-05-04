@@ -56,6 +56,10 @@ func (l *Lexer) NextToken() token.Token {
 		return newToken(token.LBRACE, l.ch)
 	case '}':
 		return newToken(token.RBRACE, l.ch)
+	case '[':
+		return newToken(token.LBLACKET, l.ch)
+	case ']':
+		return newToken(token.RBLACKET, l.ch)
 	case ',':
 		return newToken(token.COMMA, l.ch)
 	case '+':

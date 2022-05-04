@@ -32,6 +32,8 @@ const (
 	RPAREN    // )
 	LBRACE    // {
 	RBRACE    // }
+	LBLACKET  // [
+	RBLACKET  // ]
 
 	// キーワード
 	FUNCTION // fn
