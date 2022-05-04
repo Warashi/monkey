@@ -235,3 +235,21 @@ func TestFunctionApplication(t *testing.T) {
 		})
 	}
 }
+
+func TestBuiltinFunctions(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: `len("")`, want: IntegerObject(0)},
+		{input: `len("four")`, want: IntegerObject(4)},
+		{input: `len("hello, world")`, want: IntegerObject(12)},
+		{input: `len(1)`, want: ErrorObject("argument to `len` not supported, got Integer")},
+		{input: `len("one", "two")`, want: ErrorObject("wrong number of arguments. got=2, want=1")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(tt.input))
+		})
+	}
+}

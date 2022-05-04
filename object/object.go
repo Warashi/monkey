@@ -7,6 +7,8 @@ import (
 	"github.com/Warashi/implement-interpreter-with-go/ast"
 )
 
+type BuiltinFunction func(args ...Object) Object
+
 //go:generate go run golang.org/x/tools/cmd/stringer -type Type -trimprefix Type
 type Type int
 
@@ -19,6 +21,7 @@ const (
 	TypeReturn
 	TypeError
 	TypeFunction
+	TypeBuiltin
 )
 
 type Object interface {
@@ -54,6 +57,10 @@ type Function struct {
 	Env        Environment
 }
 
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
 func (o Integer) Type() Type      { return TypeInteger }
 func (o Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
 
@@ -86,3 +93,6 @@ func (o Function) Inspect() string {
 	b.WriteString("\n}")
 	return b.String()
 }
+
+func (o Builtin) Type() Type      { return TypeBuiltin }
+func (o Builtin) Inspect() string { return "builtin function" }
