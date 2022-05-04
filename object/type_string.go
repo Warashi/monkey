@@ -9,16 +9,17 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[TypeInteger-1]
-	_ = x[TypeBoolean-2]
-	_ = x[TypeNull-3]
-	_ = x[TypeReturn-4]
-	_ = x[TypeError-5]
-	_ = x[TypeFunction-6]
+	_ = x[TypeString-2]
+	_ = x[TypeBoolean-3]
+	_ = x[TypeNull-4]
+	_ = x[TypeReturn-5]
+	_ = x[TypeError-6]
+	_ = x[TypeFunction-7]
 }
 
-const _Type_name = "IntegerBooleanNullReturnErrorFunction"
+const _Type_name = "IntegerStringBooleanNullReturnErrorFunction"
 
-var _Type_index = [...]uint8{0, 7, 14, 18, 24, 29, 37}
+var _Type_index = [...]uint8{0, 7, 13, 20, 24, 30, 35, 43}
 
 func (i Type) String() string {
 	i -= 1

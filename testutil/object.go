@@ -9,6 +9,10 @@ func IntegerObject(val int64) object.Object {
 	return object.Integer{Value: val}
 }
 
+func StringObject(val string) object.Object {
+	return object.String{Value: val}
+}
+
 func BooleanObject(val bool) object.Object {
 	return object.Boolean{Value: val}
 }

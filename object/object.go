@@ -13,6 +13,7 @@ type Type int
 const (
 	_ Type = iota
 	TypeInteger
+	TypeString
 	TypeBoolean
 	TypeNull
 	TypeReturn
@@ -27,6 +28,10 @@ type Object interface {
 
 type Integer struct {
 	Value int64
+}
+
+type String struct {
+	Value string
 }
 
 type Boolean struct {
@@ -51,6 +56,9 @@ type Function struct {
 
 func (o Integer) Type() Type      { return TypeInteger }
 func (o Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
+
+func (o String) Type() Type      { return TypeString }
+func (o String) Inspect() string { return o.Value }
 
 func (o Boolean) Type() Type      { return TypeBoolean }
 func (o Boolean) Inspect() string { return strconv.FormatBool(o.Value) }
