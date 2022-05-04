@@ -34,6 +34,7 @@ const (
 	RBRACE    // }
 	LBLACKET  // [
 	RBLACKET  // ]
+	COLON     // :
 
 	// キーワード
 	FUNCTION // fn

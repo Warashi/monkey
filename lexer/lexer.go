@@ -84,6 +84,8 @@ func (l *Lexer) NextToken() token.Token {
 		return newToken(token.GT, l.ch)
 	case '"':
 		return token.Token{Type: token.STRING, Literal: l.readString()}
+	case ':':
+		return newToken(token.COLON, l.ch)
 	case 0:
 		return token.Token{Type: token.EOF}
 	default:
