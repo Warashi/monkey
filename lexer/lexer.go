@@ -78,6 +78,8 @@ func (l *Lexer) NextToken() token.Token {
 		return newToken(token.LT, l.ch)
 	case '>':
 		return newToken(token.GT, l.ch)
+	case '"':
+		return token.Token{Type: token.STRING, Literal: l.readString()}
 	case 0:
 		return token.Token{Type: token.EOF}
 	default:
@@ -107,6 +109,15 @@ func (l *Lexer) readNumber() string {
 		l.readChar()
 	}
 	return l.input[p:l.readPosisiton]
+}
+
+func (l *Lexer) readString() string {
+	l.readChar()
+	p := l.position
+	for l.ch != '"' && l.ch != 0 {
+		l.readChar()
+	}
+	return l.input[p:l.position]
 }
 
 func (l *Lexer) skipWhitespace() {

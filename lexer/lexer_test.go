@@ -152,6 +152,8 @@ func TestNextToken(t *testing.T) {
 				Token(token.NOT_EQ, "!="),
 				Token(token.INT, "9"),
 				Token(token.SEMICOLON, ";"),
+				Token(token.STRING, "foobar"),
+				Token(token.STRING, "foo bar"),
 				Token(token.EOF, ""),
 			},
 		},
