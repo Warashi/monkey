@@ -1,7 +1,7 @@
 package testutil
 
 import (
-	"fmt"
+	"reflect"
 
 	"github.com/Warashi/implement-interpreter-with-go/ast"
 	"github.com/Warashi/implement-interpreter-with-go/token"
@@ -17,19 +17,7 @@ func TokenOf(n ast.Node) token.Token {
 		return TokenOf(n.Function)
 	case *ast.InfixExpression:
 		return TokenOf(n.Left)
-	case *ast.Identifier:
-		return n.Token
-	case *ast.IntegerLiteral:
-		return n.Token
-	case *ast.BooleanLiteral:
-		return n.Token
-	case *ast.FunctionLiteral:
-		return n.Token
-	case *ast.PrefixExpression:
-		return n.Token
-	case *ast.IfExpression:
-		return n.Token
 	default:
-		panic(fmt.Sprintf("unknown type: %T", n))
+		return reflect.ValueOf(n).Elem().FieldByName("Token").Interface().(token.Token)
 	}
 }
