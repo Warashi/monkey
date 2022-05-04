@@ -8,12 +8,7 @@ import (
 	"github.com/Warashi/implement-interpreter-with-go/object"
 	"github.com/Warashi/implement-interpreter-with-go/parser"
 	. "github.com/Warashi/implement-interpreter-with-go/testutil"
-	"github.com/Warashi/implement-interpreter-with-go/token"
 	"github.com/stretchr/testify/assert"
-)
-
-var (
-	Plus = token.Token{Type: token.PLUS, Literal: "+"}
 )
 
 func Eval(input string) object.Object {
