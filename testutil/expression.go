@@ -88,6 +88,13 @@ func ArrayLiteral(elements ...ast.Expression) *ast.ArrayLiteral {
 	}
 }
 
+func HashLiteral(pairs map[ast.Expression]ast.Expression) *ast.HashLiteral {
+	return &ast.HashLiteral{
+		Token: token.Token{Type: token.LBRACE, Literal: "{"},
+		Pairs: pairs,
+	}
+}
+
 func IfExpression(cond ast.Expression, cons, alt *ast.BlockStatement) *ast.IfExpression {
 	return &ast.IfExpression{
 		Token:       token.Token{Type: token.IF, Literal: "if"},

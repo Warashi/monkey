@@ -1,9 +1,12 @@
 package ast
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/Warashi/implement-interpreter-with-go/token"
+	"golang.org/x/exp/slices"
 )
 
 type Node interface {
@@ -136,6 +139,38 @@ func (e *ArrayLiteral) String() string {
 	b.WriteString(strings.Join(elements, ", "))
 	b.WriteString("]")
 	return b.String()
+}
+
+type HashLiteral struct {
+	Token token.Token
+	Pairs map[Expression]Expression
+}
+
+func (e *HashLiteral) expressionNode()      {}
+func (e *HashLiteral) TokenLiteral() string { return e.Token.Literal }
+func (e *HashLiteral) String() string {
+	var b strings.Builder
+	pairs := make([]string, 0, len(e.Pairs))
+	for _, pair := range e.pairs() {
+		pairs = append(pairs, fmt.Sprintf("%s:%s", pair[0], pair[1]))
+	}
+	b.WriteString("{")
+	b.WriteString(strings.Join(pairs, ", "))
+	b.WriteString("}")
+	return b.String()
+}
+
+func (e *HashLiteral) pairs() [][2]Expression {
+	pairs := make([][2]Expression, 0, len(e.Pairs))
+	for k, v := range e.Pairs {
+		pairs = append(pairs, [2]Expression{k, v})
+	}
+	slices.SortFunc(pairs, func(a, b [2]Expression) bool { return a[0].String() < b[0].String() })
+	return pairs
+}
+
+func (e *HashLiteral) Equal(o *HashLiteral) bool {
+	return reflect.DeepEqual(e.pairs(), o.pairs())
 }
 
 type PrefixExpression struct {

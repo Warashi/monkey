@@ -54,6 +54,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.IF, p.parseIfExpression)
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(token.LBLACKET, p.parseArrayLiteral)
+	p.registerPrefix(token.LBRACE, p.parseHashLiteral)
 
 	p.registerInfix(token.EQ, p.parseInfixExpression)
 	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
@@ -244,6 +245,42 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 func (p *Parser) parseArrayLiteral() ast.Expression {
 	e := &ast.ArrayLiteral{Token: p.current}
 	e.Elements = p.parseExpressionList(token.RBLACKET)
+	return e
+}
+
+func (p *Parser) parseHashLiteral() ast.Expression {
+	e := &ast.HashLiteral{Token: p.current}
+	if p.peekIs(token.RBRACE) {
+		p.nextToken()
+		return e
+	}
+	p.nextToken()
+	pairs := make(map[ast.Expression]ast.Expression)
+
+	key := p.parseExpression(LOWEST)
+	if !p.expectPeek(token.COLON) {
+		return nil
+	}
+	p.nextToken()
+	value := p.parseExpression(LOWEST)
+	pairs[key] = value
+
+	for p.peekIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		key := p.parseExpression(LOWEST)
+		if !p.expectPeek(token.COLON) {
+			return nil
+		}
+		p.nextToken()
+		value := p.parseExpression(LOWEST)
+		pairs[key] = value
+	}
+	if !p.expectPeek(token.RBRACE) {
+		return nil
+	}
+
+	e.Pairs = pairs
 	return e
 }
 

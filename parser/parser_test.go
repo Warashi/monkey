@@ -10,6 +10,7 @@ import (
 	"github.com/Warashi/implement-interpreter-with-go/parser/testdata"
 	. "github.com/Warashi/implement-interpreter-with-go/testutil"
 	"github.com/Warashi/implement-interpreter-with-go/token"
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -128,6 +129,7 @@ func TestFunctionParameterParsing(t *testing.T) {
 		})
 	}
 }
+
 func TestArrayLiteralParsing(t *testing.T) {
 	tests := []struct {
 		input string
@@ -152,6 +154,36 @@ func TestArrayLiteralParsing(t *testing.T) {
 			require.Empty(t, p.Errors())
 			require.NotNil(t, program)
 			assert.Equal(t, tt.want, program.Statements)
+		})
+	}
+}
+
+func TestHashLiteralParsing(t *testing.T) {
+	tests := []struct {
+		input string
+		want  []ast.Statement
+	}{
+		{
+			input: `{"one": 1, "two": 2, "three": 3}`,
+			want: []ast.Statement{ExpressionStatement(
+				HashLiteral(map[ast.Expression]ast.Expression{
+					StringLiteral("one"):   IntegerLiteral(1),
+					StringLiteral("two"):   IntegerLiteral(2),
+					StringLiteral("three"): IntegerLiteral(3),
+				}),
+			)},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			p := parser.New(lexer.New(tt.input))
+			program := p.Parse()
+			require.Empty(t, p.Errors())
+			require.NotNil(t, program)
+			if !cmp.Equal(tt.want, program.Statements) {
+				t.Errorf("got=%v, want=%v, diff=%v", program.Statements, tt.want, cmp.Diff(tt.want, program.Statements))
+			}
 		})
 	}
 }
