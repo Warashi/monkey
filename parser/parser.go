@@ -218,24 +218,7 @@ func (p *Parser) parseCallExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseCallArguments() []ast.Expression {
-	if p.peekIs(token.RPAREN) {
-		p.nextToken()
-		return nil
-	}
-	p.nextToken()
-
-	var args []ast.Expression
-	args = append(args, p.parseExpression(LOWEST))
-	for p.peekIs(token.COMMA) {
-		p.nextToken()
-		p.nextToken()
-		args = append(args, p.parseExpression(LOWEST))
-	}
-
-	if !p.expectPeek(token.RPAREN) {
-		return nil
-	}
-	return args
+	return p.parseExpressionList(token.RPAREN)
 }
 
 func (p *Parser) parseGroupedExpression() ast.Expression {
@@ -249,23 +232,29 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
 	e := &ast.ArrayLiteral{Token: p.current}
-	if p.peekIs(token.RBLACKET) {
+	e.Elements = p.parseExpressionList(token.RBLACKET)
+	return e
+}
+
+func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
+	if p.peekIs(end) {
 		p.nextToken()
-		return e
+		return nil
 	}
 	p.nextToken()
 
-	e.Elements = append(e.Elements, p.parseExpression(LOWEST))
+	var exps []ast.Expression
+	exps = append(exps, p.parseExpression(LOWEST))
 	for p.peekIs(token.COMMA) {
 		p.nextToken()
 		p.nextToken()
-		e.Elements = append(e.Elements, p.parseExpression(LOWEST))
+		exps = append(exps, p.parseExpression(LOWEST))
 	}
 
-	if !p.expectPeek(token.RBLACKET) {
+	if !p.expectPeek(end) {
 		return nil
 	}
-	return e
+	return exps
 }
 
 func (p *Parser) parseStatement() ast.Statement {
