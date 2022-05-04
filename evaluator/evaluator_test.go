@@ -244,8 +244,12 @@ func TestBuiltinFunctions(t *testing.T) {
 		{input: `len("")`, want: IntegerObject(0)},
 		{input: `len("four")`, want: IntegerObject(4)},
 		{input: `len("hello, world")`, want: IntegerObject(12)},
+		{input: `len([1, 2])`, want: IntegerObject(2)},
 		{input: `len(1)`, want: ErrorObject("argument to `len` not supported, got Integer")},
 		{input: `len("one", "two")`, want: ErrorObject("wrong number of arguments. got=2, want=1")},
+		{input: `len([])`, want: IntegerObject(0)},
+		{input: `len([1])`, want: IntegerObject(1)},
+		{input: `len([1, 2])`, want: IntegerObject(2)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {

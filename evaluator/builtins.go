@@ -13,6 +13,8 @@ func builtinLen(args ...object.Object) object.Object {
 	switch args[0].Type() {
 	case object.TypeString:
 		return object.Integer{Value: int64(len(args[0].(object.String).Value))}
+	case object.TypeArray:
+		return object.Integer{Value: int64(len(args[0].(object.Array).Elements))}
 	default:
 		return newErrorf("argument to `len` not supported, got %s", args[0].Type())
 	}
