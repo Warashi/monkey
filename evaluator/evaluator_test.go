@@ -297,3 +297,43 @@ func TestArrayIndexing(t *testing.T) {
 		})
 	}
 }
+
+func TestHashLiteral(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{
+			input: `{"one": 1, "two": 2, 3: "three", 3+1:("fo" + "ur")}`,
+			want: HashObject(map[object.Object]object.Object{
+				StringObject("one"): IntegerObject(1),
+				StringObject("two"): IntegerObject(2),
+				IntegerObject(3):    StringObject("three"),
+				IntegerObject(4):    StringObject("four"),
+			}),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(tt.input))
+		})
+	}
+}
+
+func TestHashIndexing(t *testing.T) {
+	tests := []struct {
+		input string
+		want  object.Object
+	}{
+		{input: `{"one": 1, "two": 2, 3: "three", 3+1:("fo" + "ur")}["one"]`, want: IntegerObject(1)},
+		{input: `{"one": 1, "two": 2, 3: "three", 3+1:("fo" + "ur")}["t" + "wo"]`, want: IntegerObject(2)},
+		{input: `{"one": 1, "two": 2, 3: "three", 3+1:("fo" + "ur")}[1+2]`, want: StringObject("three")},
+		{input: `let m = {"one": 1, "two": 2, 3: "three", 3+1:("fo" + "ur")}; m[1+2]`, want: StringObject("three")},
+		{input: `let m = {"one": 1, 1: "ONE", "two": 2, 3: "three", 3+1:("fo" + "ur")};let k = m["one"] m[k]`, want: StringObject("ONE")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.want, Eval(tt.input))
+		})
+	}
+}

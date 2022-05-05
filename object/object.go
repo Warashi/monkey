@@ -1,10 +1,13 @@
 package object
 
 import (
+	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/Warashi/implement-interpreter-with-go/ast"
+	"golang.org/x/exp/slices"
 )
 
 type BuiltinFunction func(args ...Object) Object
@@ -23,6 +26,7 @@ const (
 	TypeFunction
 	TypeBuiltin
 	TypeArray
+	TypeHash
 )
 
 type Object interface {
@@ -64,6 +68,10 @@ type Builtin struct {
 
 type Array struct {
 	Elements []Object
+}
+
+type Hash struct {
+	Pairs map[Object]Object
 }
 
 func (o Integer) Type() Type      { return TypeInteger }
@@ -113,4 +121,26 @@ func (o Array) Inspect() string {
 	b.WriteString(strings.Join(elements, ", "))
 	b.WriteString("]")
 	return b.String()
+}
+
+func (o Hash) Type() Type { return TypeHash }
+func (o Hash) Inspect() string {
+	var b strings.Builder
+	pairs := make([]string, 0, len(o.Pairs))
+	for k, v := range o.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s:%s", k.Inspect(), v.Inspect()))
+	}
+	b.WriteString("{")
+	b.WriteString(strings.Join(pairs, ", "))
+	b.WriteString("}")
+	return b.String()
+}
+func (o Hash) Equal(other Hash) bool { return reflect.DeepEqual(o.pairs(), other.pairs()) }
+func (o Hash) pairs() [][2]Object {
+	pairs := make([][2]Object, 0, len(o.Pairs))
+	for k, v := range o.Pairs {
+		pairs = append(pairs, [2]Object{k, v})
+	}
+	slices.SortFunc(pairs, func(a, b [2]Object) bool { return a[0].Inspect() < b[0].Inspect() })
+	return pairs
 }

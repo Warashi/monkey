@@ -17,11 +17,12 @@ func _() {
 	_ = x[TypeFunction-7]
 	_ = x[TypeBuiltin-8]
 	_ = x[TypeArray-9]
+	_ = x[TypeHash-10]
 }
 
-const _Type_name = "IntegerStringBooleanNullReturnErrorFunctionBuiltinArray"
+const _Type_name = "IntegerStringBooleanNullReturnErrorFunctionBuiltinArrayHash"
 
-var _Type_index = [...]uint8{0, 7, 13, 20, 24, 30, 35, 43, 50, 55}
+var _Type_index = [...]uint8{0, 7, 13, 20, 24, 30, 35, 43, 50, 55, 59}
 
 func (i Type) String() string {
 	i -= 1

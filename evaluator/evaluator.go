@@ -77,6 +77,20 @@ func Eval(n ast.Node, env object.Environment) object.Object {
 			return elements[0]
 		}
 		return object.Array{Elements: elements}
+	case *ast.HashLiteral:
+		pairs := make(map[object.Object]object.Object, len(n.Pairs))
+		for k, v := range n.Pairs {
+			key := Eval(k, env)
+			if isError(key) {
+				return key
+			}
+			value := Eval(v, env)
+			if isError(value) {
+				return value
+			}
+			pairs[key] = value
+		}
+		return object.Hash{Pairs: pairs}
 	case *ast.IndexExpression:
 		left := Eval(n.Left, env)
 		if isError(left) {
@@ -188,6 +202,13 @@ func evalIndexExpression(left, right object.Object) object.Object {
 			return newErrorf("index out of range. index=%d, len=%d", right.Value, len(left.Elements))
 		}
 		return left.Elements[right.Value]
+	case left.Type() == object.TypeHash:
+		left := left.(object.Hash)
+		val, ok := left.Pairs[right]
+		if !ok {
+			return newErrorf("key not found. key=%s", right.Inspect())
+		}
+		return val
 	default:
 		return newErrorf("type mismatch: %s[%s]", left.Type(), right.Type())
 	}

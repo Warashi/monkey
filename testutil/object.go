@@ -36,3 +36,7 @@ func FunctionObject(env object.Environment, body *ast.BlockStatement, params ...
 func ArrayObject(elements ...object.Object) object.Object {
 	return object.Array{Elements: elements}
 }
+
+func HashObject(pairs map[object.Object]object.Object) object.Object {
+	return object.Hash{Pairs: pairs}
+}
