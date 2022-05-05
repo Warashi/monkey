@@ -34,6 +34,11 @@ type Object interface {
 	Inspect() string
 }
 
+type Hashable interface {
+	Object
+	hashable()
+}
+
 type Integer struct {
 	Value int64
 }
@@ -71,17 +76,20 @@ type Array struct {
 }
 
 type Hash struct {
-	Pairs map[Object]Object
+	Pairs map[Hashable]Object
 }
 
 func (o Integer) Type() Type      { return TypeInteger }
 func (o Integer) Inspect() string { return strconv.FormatInt(o.Value, 10) }
+func (o Integer) hashable()       {}
 
 func (o String) Type() Type      { return TypeString }
 func (o String) Inspect() string { return o.Value }
+func (o String) hashable()       {}
 
 func (o Boolean) Type() Type      { return TypeBoolean }
 func (o Boolean) Inspect() string { return strconv.FormatBool(o.Value) }
+func (o Boolean) hashable()       {}
 
 func (o Null) Type() Type      { return TypeNull }
 func (o Null) Inspect() string { return "null" }

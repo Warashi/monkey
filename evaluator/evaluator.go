@@ -78,17 +78,21 @@ func Eval(n ast.Node, env object.Environment) object.Object {
 		}
 		return object.Array{Elements: elements}
 	case *ast.HashLiteral:
-		pairs := make(map[object.Object]object.Object, len(n.Pairs))
+		pairs := make(map[object.Hashable]object.Object, len(n.Pairs))
 		for k, v := range n.Pairs {
 			key := Eval(k, env)
 			if isError(key) {
 				return key
 			}
+			keyHashable, ok := key.(object.Hashable)
+			if !ok {
+				return newErrorf("%s cannot used as hash key", key.Type())
+			}
 			value := Eval(v, env)
 			if isError(value) {
 				return value
 			}
-			pairs[key] = value
+			pairs[keyHashable] = value
 		}
 		return object.Hash{Pairs: pairs}
 	case *ast.IndexExpression:
@@ -204,7 +208,11 @@ func evalIndexExpression(left, right object.Object) object.Object {
 		return left.Elements[right.Value]
 	case left.Type() == object.TypeHash:
 		left := left.(object.Hash)
-		val, ok := left.Pairs[right]
+		rightHashable, ok := right.(object.Hashable)
+		if !ok {
+			return newErrorf("%s cannot used as hash key", right.Type())
+		}
+		val, ok := left.Pairs[rightHashable]
 		if !ok {
 			return newErrorf("key not found. key=%s", right.Inspect())
 		}

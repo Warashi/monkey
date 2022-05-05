@@ -305,7 +305,7 @@ func TestHashLiteral(t *testing.T) {
 	}{
 		{
 			input: `{"one": 1, "two": 2, 3: "three", 3+1:("fo" + "ur")}`,
-			want: HashObject(map[object.Object]object.Object{
+			want: HashObject(map[object.Hashable]object.Object{
 				StringObject("one"): IntegerObject(1),
 				StringObject("two"): IntegerObject(2),
 				IntegerObject(3):    StringObject("three"),
