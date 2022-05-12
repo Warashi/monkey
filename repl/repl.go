@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Warashi/implement-interpreter-with-go/evaluator"
-	"github.com/Warashi/implement-interpreter-with-go/lexer"
-	"github.com/Warashi/implement-interpreter-with-go/object"
-	"github.com/Warashi/implement-interpreter-with-go/parser"
+	"github.com/Warashi/monkey/evaluator"
+	"github.com/Warashi/monkey/lexer"
+	"github.com/Warashi/monkey/object"
+	"github.com/Warashi/monkey/parser"
 )
 
 const PROMPT = ">> "

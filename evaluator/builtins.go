@@ -1,6 +1,6 @@
 package evaluator
 
-import "github.com/Warashi/implement-interpreter-with-go/object"
+import "github.com/Warashi/monkey/object"
 
 var builtins = map[string]object.Builtin{
 	"len":   {Fn: builtinLen},

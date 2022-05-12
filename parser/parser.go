@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Warashi/implement-interpreter-with-go/ast"
-	"github.com/Warashi/implement-interpreter-with-go/lexer"
-	"github.com/Warashi/implement-interpreter-with-go/token"
+	"github.com/Warashi/monkey/ast"
+	"github.com/Warashi/monkey/lexer"
+	"github.com/Warashi/monkey/token"
 )
 
 type (

@@ -3,11 +3,11 @@ package evaluator_test
 import (
 	"testing"
 
-	"github.com/Warashi/implement-interpreter-with-go/evaluator"
-	"github.com/Warashi/implement-interpreter-with-go/lexer"
-	"github.com/Warashi/implement-interpreter-with-go/object"
-	"github.com/Warashi/implement-interpreter-with-go/parser"
-	. "github.com/Warashi/implement-interpreter-with-go/testutil"
+	"github.com/Warashi/monkey/evaluator"
+	"github.com/Warashi/monkey/lexer"
+	"github.com/Warashi/monkey/object"
+	"github.com/Warashi/monkey/parser"
+	. "github.com/Warashi/monkey/testutil"
 	"github.com/stretchr/testify/assert"
 )
 

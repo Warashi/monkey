@@ -3,8 +3,8 @@ package testutil
 import (
 	"strconv"
 
-	"github.com/Warashi/implement-interpreter-with-go/ast"
-	"github.com/Warashi/implement-interpreter-with-go/token"
+	"github.com/Warashi/monkey/ast"
+	"github.com/Warashi/monkey/token"
 )
 
 var (
