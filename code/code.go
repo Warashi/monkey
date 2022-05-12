@@ -1,6 +1,10 @@
 package code
 
-import "fmt"
+import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
+)
 
 //go:generate go run golang.org/x/tools/cmd/stringer -type Opcode -trimprefix Op
 type (
@@ -28,4 +32,28 @@ func Lookup(op Opcode) (Definition, error) {
 		return Definition{}, fmt.Errorf("%s not found.", op)
 	}
 	return def, nil
+}
+
+func Make(op Opcode, operands ...int64) ([]byte, error) {
+	def, err := Lookup(op)
+	if err != nil {
+		return nil, fmt.Errorf("Lookup: %w", err)
+	}
+	instLen := 1
+	for _, w := range def.OperandWitdth {
+		instLen += w
+	}
+	buf := new(bytes.Buffer)
+	buf.Grow(instLen)
+	binary.Write(buf, binary.BigEndian, op)
+
+	for i, o := range operands {
+		width := def.OperandWitdth[i]
+		switch width {
+		case 2:
+			binary.Write(buf, binary.BigEndian, uint16(o))
+		}
+	}
+
+	return buf.Bytes(), nil
 }
