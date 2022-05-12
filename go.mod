@@ -1,4 +1,4 @@
-module github.com/Warashi/implement-interpreter-with-go
+module github.com/Warashi/monkey
 
 go 1.18
 

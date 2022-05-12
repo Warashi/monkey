@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/Warashi/implement-interpreter-with-go/repl"
+	"github.com/Warashi/monkey/repl"
 )
 
 func main() {

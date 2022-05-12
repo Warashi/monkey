@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/Warashi/implement-interpreter-with-go/lexer"
-	"github.com/Warashi/implement-interpreter-with-go/lexer/testdata"
-	. "github.com/Warashi/implement-interpreter-with-go/testutil"
-	"github.com/Warashi/implement-interpreter-with-go/token"
+	"github.com/Warashi/monkey/lexer"
+	"github.com/Warashi/monkey/lexer/testdata"
+	. "github.com/Warashi/monkey/testutil"
+	"github.com/Warashi/monkey/token"
 	"github.com/stretchr/testify/assert"
 )
 

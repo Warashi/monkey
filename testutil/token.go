@@ -3,8 +3,8 @@ package testutil
 import (
 	"reflect"
 
-	"github.com/Warashi/implement-interpreter-with-go/ast"
-	"github.com/Warashi/implement-interpreter-with-go/token"
+	"github.com/Warashi/monkey/ast"
+	"github.com/Warashi/monkey/token"
 )
 
 func Token(typ token.Type, literal string) token.Token {

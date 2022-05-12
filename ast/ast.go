@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/Warashi/implement-interpreter-with-go/token"
+	"github.com/Warashi/monkey/token"
 	"golang.org/x/exp/slices"
 )
 

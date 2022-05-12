@@ -1,8 +1,8 @@
 package testutil
 
 import (
-	"github.com/Warashi/implement-interpreter-with-go/ast"
-	"github.com/Warashi/implement-interpreter-with-go/object"
+	"github.com/Warashi/monkey/ast"
+	"github.com/Warashi/monkey/object"
 )
 
 func IntegerObject(val int64) object.Integer {

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Warashi/implement-interpreter-with-go/ast"
+	"github.com/Warashi/monkey/ast"
 	"golang.org/x/exp/slices"
 )
 
