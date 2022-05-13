@@ -14,10 +14,10 @@ func TestMake(t *testing.T) {
 		name        string
 		op          code.Opcode
 		operands    []int64
-		want        []byte
+		want        code.Instructions
 		assertError assert.ErrorAssertionFunc
 	}{
-		{"constant", code.OpConstant, []int64{0xFFFE}, []byte{byte(code.OpConstant), 0xFF, 0xFE}, assert.NoError},
+		{"constant", code.OpConstant, []int64{0xFFFE}, code.Instructions{byte(code.OpConstant), 0xFF, 0xFE}, assert.NoError},
 	}
 
 	for _, tt := range tests {

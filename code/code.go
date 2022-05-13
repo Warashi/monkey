@@ -34,7 +34,7 @@ func Lookup(op Opcode) (Definition, error) {
 	return def, nil
 }
 
-func Make(op Opcode, operands ...int64) ([]byte, error) {
+func Make(op Opcode, operands ...int64) (Instructions, error) {
 	def, err := Lookup(op)
 	if err != nil {
 		return nil, fmt.Errorf("Lookup: %w", err)
