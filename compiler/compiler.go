@@ -43,7 +43,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return fmt.Errorf("c.Compile(%T): %w", node, err)
 		}
 	case *ast.IntegerLiteral:
-		c.emit(code.OpConstant, c.addConstant(object.Integer{Value: node.Value}))
+		if _, err := c.emit(code.OpConstant, c.addConstant(object.Integer{Value: node.Value})); err != nil {
+			return fmt.Errorf("c.emit: %w", err)
+		}
 	default:
 		return fmt.Errorf("unknown type: %T", node)
 	}
