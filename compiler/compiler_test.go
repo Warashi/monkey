@@ -10,6 +10,7 @@ import (
 	"github.com/Warashi/monkey/object"
 	"github.com/Warashi/monkey/parser"
 	. "github.com/Warashi/monkey/testutil"
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -44,7 +45,9 @@ func TestIntegerArithmetric(t *testing.T) {
 
 			compiler := compiler.New()
 			require.NoError(t, compiler.Compile(program))
-			assert.Equal(t, tt.want, compiler.Bytecode())
+			if want, got := tt.want, compiler.Bytecode(); !cmp.Equal(want, got) {
+				t.Error(cmp.Diff(want, got))
+			}
 		})
 	}
 }
