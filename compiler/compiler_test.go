@@ -53,13 +53,13 @@ func TestIntegerArithmetric(t *testing.T) {
 }
 
 func TestInstructionsString(t *testing.T) {
-	want := `0000 OpConstant 1
-0003 OpConstant 2
-0006 OpConstant 65535
+	want := `0000 OpAdd
+0001 OpConstant 2
+0004 OpConstant 65535
 `
 
 	got := ConcatInstructions(
-		MakeInstructions(t, code.OpConstant, 1),
+		MakeInstructions(t, code.OpAdd),
 		MakeInstructions(t, code.OpConstant, 2),
 		MakeInstructions(t, code.OpConstant, 65535),
 	)
