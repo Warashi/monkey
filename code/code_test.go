@@ -18,6 +18,7 @@ func TestMake(t *testing.T) {
 		assertError assert.ErrorAssertionFunc
 	}{
 		{"constant", code.OpConstant, []int64{0xFFFE}, code.Instructions{byte(code.OpConstant), 0xFF, 0xFE}, assert.NoError},
+		{"add", code.OpAdd, nil, code.Instructions{byte(code.OpAdd)}, assert.NoError},
 	}
 
 	for _, tt := range tests {
