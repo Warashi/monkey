@@ -35,7 +35,7 @@ func TestIntegerArithmetric(t *testing.T) {
 	)
 
 	tests := []testcase{
-		{"1+2", "1 + 2", c{cat(instr(t, code.OpConstant, 0), instr(t, code.OpConstant, 1)), o{int(1), int(2)}}},
+		{"1+2", "1 + 2", c{cat(instr(t, code.OpConstant, 0), instr(t, code.OpConstant, 1), instr(t, code.OpAdd)), o{int(1), int(2)}}},
 	}
 	for _, tt := range tests {
 		tt := tt

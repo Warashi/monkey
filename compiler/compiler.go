@@ -42,6 +42,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Right); err != nil {
 			return fmt.Errorf("c.Compile(%T): %w", node, err)
 		}
+		if _, err := c.emitInfixOp(node.Operator); err != nil {
+			return fmt.Errorf("c.emitInfixOp: %w", err)
+		}
 	case *ast.IntegerLiteral:
 		if _, err := c.emit(code.OpConstant, c.addConstant(object.Integer{Value: node.Value})); err != nil {
 			return fmt.Errorf("c.emit: %w", err)
@@ -76,4 +79,13 @@ func (c *Compiler) emit(op code.Opcode, operands ...int64) (int, error) {
 		return 0, fmt.Errorf("code.Make: %w", err)
 	}
 	return c.addInstruction(ins), nil
+}
+
+func (c *Compiler) emitInfixOp(op string) (int, error) {
+	switch op {
+	case "+":
+		return c.emit(code.OpAdd)
+	default:
+		return 0, fmt.Errorf("unknown operator: %s", op)
+	}
 }
