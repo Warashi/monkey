@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//go:generate go run golang.org/x/tools/cmd/stringer -type Opcode -trimprefix Op
+//go:generate go run golang.org/x/tools/cmd/stringer -type Opcode
 type (
 	Instructions []byte
 	Opcode       byte
