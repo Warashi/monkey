@@ -88,6 +88,12 @@ func (c *Compiler) emitInfixOp(op string) (int, error) {
 	switch op {
 	case "+":
 		return c.emit(code.OpAdd)
+	case "-":
+		return c.emit(code.OpSub)
+	case "*":
+		return c.emit(code.OpMul)
+	case "/":
+		return c.emit(code.OpDiv)
 	default:
 		return 0, fmt.Errorf("unknown operator: %s", op)
 	}

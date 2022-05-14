@@ -32,7 +32,7 @@ func TestIntegerArithmetric(t *testing.T) {
 
 	tests := []testcase{
 		{
-			name:  "1+2",
+			name:  "plus",
 			input: "1 + 2",
 			want: compiler.Bytecode{
 				Instructions: cat(
@@ -48,7 +48,55 @@ func TestIntegerArithmetric(t *testing.T) {
 			},
 		},
 		{
-			name:  "1;2",
+			name:  "minus",
+			input: "1 - 2",
+			want: compiler.Bytecode{
+				Instructions: cat(
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpConstant, 1),
+					instr(t, code.OpSub),
+					instr(t, code.OpPop),
+				),
+				Constants: []object.Object{
+					int(1),
+					int(2),
+				},
+			},
+		},
+		{
+			name:  "asterisk",
+			input: "1 * 2",
+			want: compiler.Bytecode{
+				Instructions: cat(
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpConstant, 1),
+					instr(t, code.OpMul),
+					instr(t, code.OpPop),
+				),
+				Constants: []object.Object{
+					int(1),
+					int(2),
+				},
+			},
+		},
+		{
+			name:  "slash",
+			input: "1 / 2",
+			want: compiler.Bytecode{
+				Instructions: cat(
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpConstant, 1),
+					instr(t, code.OpDiv),
+					instr(t, code.OpPop),
+				),
+				Constants: []object.Object{
+					int(1),
+					int(2),
+				},
+			},
+		},
+		{
+			name:  "semicolon",
 			input: "1; 2",
 			want: compiler.Bytecode{
 				Instructions: cat(
