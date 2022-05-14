@@ -52,6 +52,17 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if _, err := c.emit(code.OpConstant, c.addConstant(object.Integer{Value: node.Value})); err != nil {
 			return fmt.Errorf("c.emit: %w", err)
 		}
+	case *ast.BooleanLiteral:
+		switch node.Value {
+		case true:
+			if _, err := c.emit(code.OpTrue); err != nil {
+				return fmt.Errorf("c.emit: %w", err)
+			}
+		case false:
+			if _, err := c.emit(code.OpFalse); err != nil {
+				return fmt.Errorf("c.emit: %w", err)
+			}
+		}
 	default:
 		return fmt.Errorf("unknown type: %T", node)
 	}

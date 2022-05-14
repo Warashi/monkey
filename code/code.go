@@ -19,10 +19,16 @@ const (
 	_ Opcode = iota
 	OpConstant
 	OpPop
+
+	// binary operators
 	OpAdd
 	OpSub
 	OpMul
 	OpDiv
+
+	// boolean
+	OpTrue
+	OpFalse
 )
 
 type Definition struct {
@@ -37,6 +43,8 @@ var definitions = map[Opcode]Definition{
 	OpSub:      {"OpSub", nil},
 	OpMul:      {"OpMul", nil},
 	OpDiv:      {"OpDiv", nil},
+	OpTrue:     {"OpTrue", nil},
+	OpFalse:    {"OpFalse", nil},
 }
 
 func Lookup(op Opcode) (Definition, error) {

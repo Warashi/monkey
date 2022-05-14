@@ -127,6 +127,33 @@ func TestIntegerArithmetric(t *testing.T) {
 	}
 }
 
+func TestBooleanExpressions(t *testing.T) {
+	t.Parallel()
+	type ()
+	var (
+		cat   = ConcatInstructions
+		instr = MakeInstructions
+	)
+
+	tests := []testcase{
+		{"true", "true", compiler.Bytecode{cat(instr(t, code.OpTrue), instr(t, code.OpPop)), nil}},
+		{"false", "false", compiler.Bytecode{cat(instr(t, code.OpFalse), instr(t, code.OpPop)), nil}},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			program := parser.New(lexer.New(tt.input)).Parse()
+
+			compiler := compiler.New()
+			require.NoError(t, compiler.Compile(program))
+			if want, got := tt.want, compiler.Bytecode(); !cmp.Equal(want, got) {
+				t.Error(cmp.Diff(want, got))
+			}
+		})
+	}
+}
+
 func TestInstructionsString(t *testing.T) {
 	want := `0000 OpAdd
 0001 OpConstant 2
