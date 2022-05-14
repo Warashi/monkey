@@ -51,21 +51,9 @@ func (vm *VM) Run() error {
 			if err := vm.push(vm.constants[idx]); err != nil {
 				return fmt.Errorf("vm.push: %w", err)
 			}
-		case code.OpAdd:
-			left, err := vm.pop()
-			if err != nil {
-				return fmt.Errorf("vm.pop: %w", err)
-			}
-			right, err := vm.pop()
-			if err != nil {
-				return fmt.Errorf("vm.pop: %w", err)
-			}
-			result, err := add(left, right)
-			if err != nil {
-				return fmt.Errorf("add: %w", err)
-			}
-			if err := vm.push(result); err != nil {
-				return fmt.Errorf("vm.push: %w", err)
+		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv:
+			if err := vm.executeBinaryOperation(op); err != nil {
+				return fmt.Errorf("vm.executeBinaryOperation: %w", err)
 			}
 		case code.OpPop:
 			if _, err := vm.pop(); err != nil {
@@ -106,6 +94,44 @@ func (vm *VM) LastPopedStackElem() object.Object {
 	return vm.stack[vm.sp]
 }
 
-func add(left, right object.Object) (object.Object, error) {
-	return object.Integer{Value: left.(object.Integer).Value + right.(object.Integer).Value}, nil
+func (vm *VM) executeBinaryOperation(op code.Opcode) error {
+	right, err := vm.pop()
+	if err != nil {
+		return fmt.Errorf("vm.pop: %w", err)
+	}
+	left, err := vm.pop()
+	if err != nil {
+		return fmt.Errorf("vm.pop: %w", err)
+	}
+	switch {
+	case left.Type() == object.TypeInteger && right.Type() == object.TypeInteger:
+		left, right := left.(object.Integer), right.(object.Integer)
+		if err := vm.executeBinaryIntegerOperation(op, left, right); err != nil {
+			return fmt.Errorf("vm.executeBinaryIntegerOperation: %w", err)
+		}
+	default:
+		return fmt.Errorf("unsupported types: op=%s, left: %s, right: %s", op.String(), left.Type().String(), right.Type().String())
+	}
+	return nil
+}
+
+func (vm *VM) executeBinaryIntegerOperation(op code.Opcode, left, right object.Integer) error {
+	var result int64
+	switch op {
+	case code.OpAdd:
+		result = left.Value + right.Value
+	case code.OpSub:
+		result = left.Value - right.Value
+	case code.OpMul:
+		result = left.Value * right.Value
+	case code.OpDiv:
+		result = left.Value / right.Value
+	default:
+		return fmt.Errorf("uknown operator: %s", op.String())
+	}
+
+	if err := vm.push(object.Integer{Value: result}); err != nil {
+		return fmt.Errorf("vm.push: %w", err)
+	}
+	return nil
 }
