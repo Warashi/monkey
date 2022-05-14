@@ -38,6 +38,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if _, err := c.emit(code.OpPop); err != nil {
 			return fmt.Errorf("c.emit: %w", err)
 		}
+	case *ast.PrefixExpression:
+		if err := c.Compile(node.Right); err != nil {
+			return fmt.Errorf("c.Compile(%T): %w", node, err)
+		}
+		if _, err := c.emitPrefixOp(node.Operator); err != nil {
+			return fmt.Errorf("c.emitPrefixOp: %w", err)
+		}
 	case *ast.InfixExpression:
 		switch node.Operator {
 		case "<":
@@ -106,6 +113,17 @@ func (c *Compiler) emit(op code.Opcode, operands ...int64) (int, error) {
 		return 0, fmt.Errorf("code.Make: %w", err)
 	}
 	return c.addInstruction(ins), nil
+}
+
+func (c *Compiler) emitPrefixOp(op string) (int, error) {
+	switch op {
+	case "!":
+		return c.emit(code.OpBang)
+	case "-":
+		return c.emit(code.OpMinus)
+	default:
+		return 0, fmt.Errorf("unknown operator: %s", op)
+	}
 }
 
 func (c *Compiler) emitInfixOp(op string) (int, error) {

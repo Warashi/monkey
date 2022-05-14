@@ -111,6 +111,20 @@ func TestIntegerArithmetric(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "minus",
+			input: "-1",
+			want: compiler.Bytecode{
+				Instructions: cat(
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpMinus),
+					instr(t, code.OpPop),
+				),
+				Constants: []object.Object{
+					int(1),
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -205,6 +219,14 @@ func TestBooleanExpressions(t *testing.T) {
 			),
 			Constants: nil,
 		}},
+		{"bang", "!true", compiler.Bytecode{
+			Instructions: cat(
+				instr(t, code.OpTrue),
+				instr(t, code.OpBang),
+				instr(t, code.OpPop),
+			),
+			Constants: nil,
+		}},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -215,6 +237,9 @@ func TestBooleanExpressions(t *testing.T) {
 			compiler := compiler.New()
 			require.NoError(t, compiler.Compile(program))
 			if want, got := tt.want, compiler.Bytecode(); !cmp.Equal(want, got) {
+				if !cmp.Equal(want.Instructions, got.Instructions) {
+					t.Log(cmp.Diff(want.Instructions.String(), got.Instructions.String()))
+				}
 				t.Error(cmp.Diff(want, got))
 			}
 		})
