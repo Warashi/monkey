@@ -24,7 +24,7 @@ func TestIntegerArithmetric(t *testing.T) {
 	tests := []testcase{
 		{"constant/1", "1", IntegerObject(1)},
 		{"constant/2", "2", IntegerObject(2)},
-		{"plus", "1 + 2", IntegerObject(2)}, // FIXME
+		{"plus", "1 + 2", IntegerObject(3)},
 	}
 	for _, tt := range tests {
 		tt := tt

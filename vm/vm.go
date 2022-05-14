@@ -51,6 +51,24 @@ func (vm *VM) Run() error {
 			if err := vm.push(vm.constants[idx]); err != nil {
 				return fmt.Errorf("vm.push: %w", err)
 			}
+		case code.OpAdd:
+			left, err := vm.pop()
+			if err != nil {
+				return fmt.Errorf("vm.pop: %w", err)
+			}
+			right, err := vm.pop()
+			if err != nil {
+				return fmt.Errorf("vm.pop: %w", err)
+			}
+			result, err := add(left, right)
+			if err != nil {
+				return fmt.Errorf("add: %w", err)
+			}
+			if err := vm.push(result); err != nil {
+				return fmt.Errorf("vm.push: %w", err)
+			}
+		default:
+			return fmt.Errorf("unknown opcode: %s", op.String())
 		}
 	}
 }
@@ -64,9 +82,22 @@ func (vm *VM) push(obj object.Object) error {
 	return nil
 }
 
+func (vm *VM) pop() (object.Object, error) {
+	if vm.sp == 0 {
+		return nil, fmt.Errorf("stack underflow")
+	}
+	obj := vm.stack[vm.sp-1]
+	vm.sp--
+	return obj, nil
+}
+
 func (vm *VM) StackTop() object.Object {
 	if vm.sp == 0 {
 		return nil
 	}
 	return vm.stack[vm.sp-1]
+}
+
+func add(left, right object.Object) (object.Object, error) {
+	return object.Integer{Value: left.(object.Integer).Value + right.(object.Integer).Value}, nil
 }
