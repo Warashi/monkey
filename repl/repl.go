@@ -5,17 +5,16 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Warashi/monkey/evaluator"
+	"github.com/Warashi/monkey/compiler"
 	"github.com/Warashi/monkey/lexer"
-	"github.com/Warashi/monkey/object"
 	"github.com/Warashi/monkey/parser"
+	"github.com/Warashi/monkey/vm"
 )
 
 const PROMPT = ">> "
 
 func Start(r io.Reader, w io.Writer) {
 	s := bufio.NewScanner(r)
-	env := object.NewEnvironment()
 	fmt.Fprint(w, PROMPT)
 	for s.Scan() {
 		l := lexer.New(s.Text())
@@ -27,9 +26,17 @@ func Start(r io.Reader, w io.Writer) {
 				continue
 			}
 		}
-		if e := evaluator.Eval(program, env); e != nil {
-			fmt.Fprintln(w, e.Inspect())
+		compiler := compiler.New()
+		if err := compiler.Compile(program); err != nil {
+			fmt.Fprintf(w, "failed compile: %+v", err)
 		}
+
+		machine := vm.New(compiler.Bytecode())
+		if err := machine.Run(); err != nil {
+			fmt.Fprintf(w, "failed run: %+v", err)
+		}
+
+		fmt.Fprintln(w, machine.LastPopedStackElem().Inspect())
 		fmt.Fprint(w, PROMPT)
 	}
 }

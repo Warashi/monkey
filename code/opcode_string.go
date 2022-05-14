@@ -10,11 +10,12 @@ func _() {
 	var x [1]struct{}
 	_ = x[OpConstant-1]
 	_ = x[OpAdd-2]
+	_ = x[OpPop-3]
 }
 
-const _Opcode_name = "OpConstantOpAdd"
+const _Opcode_name = "OpConstantOpAddOpPop"
 
-var _Opcode_index = [...]uint8{0, 10, 15}
+var _Opcode_index = [...]uint8{0, 10, 15, 20}
 
 func (i Opcode) String() string {
 	i -= 1

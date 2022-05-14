@@ -36,7 +36,7 @@ func TestIntegerArithmetric(t *testing.T) {
 			vm := vm.New(compiler.Bytecode())
 			require.NoError(t, vm.Run())
 
-			assert.Equal(t, tt.want, vm.StackTop())
+			assert.Equal(t, tt.want, vm.LastPopedStackElem())
 		})
 	}
 }

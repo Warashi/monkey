@@ -35,6 +35,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Expression); err != nil {
 			return fmt.Errorf("c.Compile(%T): %w", node, err)
 		}
+		if _, err := c.emit(code.OpPop); err != nil {
+			return fmt.Errorf("c.emit: %w", err)
+		}
 	case *ast.InfixExpression:
 		if err := c.Compile(node.Left); err != nil {
 			return fmt.Errorf("c.Compile(%T): %w", node, err)

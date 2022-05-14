@@ -67,6 +67,10 @@ func (vm *VM) Run() error {
 			if err := vm.push(result); err != nil {
 				return fmt.Errorf("vm.push: %w", err)
 			}
+		case code.OpPop:
+			if _, err := vm.pop(); err != nil {
+				return fmt.Errorf("vm.pop: %w", err)
+			}
 		default:
 			return fmt.Errorf("unknown opcode: %s", op.String())
 		}
@@ -96,6 +100,10 @@ func (vm *VM) StackTop() object.Object {
 		return nil
 	}
 	return vm.stack[vm.sp-1]
+}
+
+func (vm *VM) LastPopedStackElem() object.Object {
+	return vm.stack[vm.sp]
 }
 
 func add(left, right object.Object) (object.Object, error) {

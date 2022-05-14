@@ -23,11 +23,7 @@ type testcase struct {
 
 func TestIntegerArithmetric(t *testing.T) {
 	t.Parallel()
-	type (
-		c = compiler.Bytecode
-		i = code.Instructions
-		o = []object.Object
-	)
+	type ()
 	var (
 		cat   = ConcatInstructions
 		instr = MakeInstructions
@@ -35,7 +31,38 @@ func TestIntegerArithmetric(t *testing.T) {
 	)
 
 	tests := []testcase{
-		{"1+2", "1 + 2", c{cat(instr(t, code.OpConstant, 0), instr(t, code.OpConstant, 1), instr(t, code.OpAdd)), o{int(1), int(2)}}},
+		{
+			name:  "1+2",
+			input: "1 + 2",
+			want: compiler.Bytecode{
+				Instructions: cat(
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpConstant, 1),
+					instr(t, code.OpAdd),
+					instr(t, code.OpPop),
+				),
+				Constants: []object.Object{
+					int(1),
+					int(2),
+				},
+			},
+		},
+		{
+			name:  "1;2",
+			input: "1; 2",
+			want: compiler.Bytecode{
+				Instructions: cat(
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpPop),
+					instr(t, code.OpConstant, 1),
+					instr(t, code.OpPop),
+				),
+				Constants: []object.Object{
+					int(1),
+					int(2),
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
