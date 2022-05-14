@@ -20,6 +20,10 @@ const (
 	OpConstant
 	OpPop
 
+	// prefix operators
+	OpMinus
+	OpBang
+
 	// binary operators
 	OpAdd
 	OpSub
@@ -42,6 +46,8 @@ type Definition struct {
 var definitions = map[Opcode]Definition{
 	OpConstant:    {"OpConstant", []int{2}},
 	OpPop:         {"OpPop", nil},
+	OpMinus:       {"OpMinus", nil},
+	OpBang:        {"OpBang", nil},
 	OpAdd:         {"OpAdd", nil},
 	OpSub:         {"OpSub", nil},
 	OpMul:         {"OpMul", nil},
