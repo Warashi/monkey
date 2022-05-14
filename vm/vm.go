@@ -60,6 +60,10 @@ func (vm *VM) Run() error {
 			if err := vm.executeBinaryOperation(op); err != nil {
 				return fmt.Errorf("vm.executeBinaryOperation: %w", err)
 			}
+		case code.OpEqual, code.OpNotEqual, code.OpGreaterThan:
+			if err := vm.executeComparison(op); err != nil {
+				return fmt.Errorf("vm.executeComparison: %w", err)
+			}
 		case code.OpTrue:
 			if err := vm.push(True); err != nil {
 				return fmt.Errorf("vm.push: %w", err)
@@ -147,4 +151,74 @@ func (vm *VM) executeBinaryIntegerOperation(op code.Opcode, left, right object.I
 		return fmt.Errorf("vm.push: %w", err)
 	}
 	return nil
+}
+
+func (vm *VM) executeComparison(op code.Opcode) error {
+	right, err := vm.pop()
+	if err != nil {
+		return fmt.Errorf("vm.pop: %w", err)
+	}
+	left, err := vm.pop()
+	if err != nil {
+		return fmt.Errorf("vm.pop: %w", err)
+	}
+	switch {
+	case left.Type() == object.TypeInteger && right.Type() == object.TypeInteger:
+		left, right := left.(object.Integer), right.(object.Integer)
+		if err := vm.executeIntegerComparison(op, left, right); err != nil {
+			return fmt.Errorf("vm.executeIntegerComparison: %w", err)
+		}
+	case left.Type() == object.TypeBoolean && right.Type() == object.TypeBoolean:
+		left, right := left.(object.Boolean), right.(object.Boolean)
+		if err := vm.executeBooleanComparison(op, left, right); err != nil {
+			return fmt.Errorf("vm.executeBooleanComparison: %w", err)
+		}
+	default:
+		return fmt.Errorf("unsupported types: op=%s, left: %s, right: %s", op.String(), left.Type().String(), right.Type().String())
+	}
+	return nil
+}
+
+func (vm *VM) executeIntegerComparison(op code.Opcode, left, right object.Integer) error {
+	var result bool
+	switch op {
+	case code.OpEqual:
+		result = left.Value == right.Value
+	case code.OpNotEqual:
+		result = left.Value != right.Value
+	case code.OpGreaterThan:
+		result = left.Value > right.Value
+	default:
+		return fmt.Errorf("uknown operator: %s", op.String())
+	}
+	if err := vm.push(booleanObject(result)); err != nil {
+		return fmt.Errorf("vm.push: %w", err)
+	}
+	return nil
+}
+
+func (vm *VM) executeBooleanComparison(op code.Opcode, left, right object.Boolean) error {
+	var result bool
+	switch op {
+	case code.OpEqual:
+		result = left.Value == right.Value
+	case code.OpNotEqual:
+		result = left.Value != right.Value
+	default:
+		return fmt.Errorf("uknown operator: %s", op.String())
+	}
+	if err := vm.push(booleanObject(result)); err != nil {
+		return fmt.Errorf("vm.push: %w", err)
+	}
+	return nil
+}
+
+func booleanObject(value bool) object.Boolean {
+	switch value {
+	case true:
+		return True
+	case false:
+		return False
+	}
+	panic("unreachable")
 }

@@ -55,6 +55,22 @@ func TestBooleanExpressions(t *testing.T) {
 	tests := []testcase{
 		{"true", "true", BooleanObject(true)},
 		{"false", "false", BooleanObject(false)},
+		{"lt/int/true", "1 < 2", BooleanObject(true)},
+		{"lt/int/false", "1 < 1", BooleanObject(false)},
+		{"gt/int/true", "2 > 1", BooleanObject(true)},
+		{"gt/int/false", "1 > 1", BooleanObject(false)},
+		{"eq/int/true", "1 == 1", BooleanObject(true)},
+		{"eq/int/false", "1 == 2", BooleanObject(false)},
+		{"neq/int/true", "1 != 2", BooleanObject(true)},
+		{"neq/int/false", "1 != 1", BooleanObject(false)},
+		{"eq/bool/true", "true == true", BooleanObject(true)},
+		{"eq/bool/false", "true == false", BooleanObject(false)},
+		{"neq/bool/true", "true != false", BooleanObject(true)},
+		{"neq/bool/false", "true != true", BooleanObject(false)},
+		{"composite/true", "(1 < 2) == true", BooleanObject(true)},
+		{"composite/false", "(1 < 2) == false", BooleanObject(false)},
+		{"composite/true", "(1 > 2) == false", BooleanObject(true)},
+		{"composite/false", "(1 > 2) == true", BooleanObject(false)},
 	}
 	for _, tt := range tests {
 		tt := tt
