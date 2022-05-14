@@ -39,14 +39,27 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return fmt.Errorf("c.emit: %w", err)
 		}
 	case *ast.InfixExpression:
-		if err := c.Compile(node.Left); err != nil {
-			return fmt.Errorf("c.Compile(%T): %w", node, err)
-		}
-		if err := c.Compile(node.Right); err != nil {
-			return fmt.Errorf("c.Compile(%T): %w", node, err)
-		}
-		if _, err := c.emitInfixOp(node.Operator); err != nil {
-			return fmt.Errorf("c.emitInfixOp: %w", err)
+		switch node.Operator {
+		case "<":
+			if err := c.Compile(node.Right); err != nil {
+				return fmt.Errorf("c.Compile(%T): %w", node, err)
+			}
+			if err := c.Compile(node.Left); err != nil {
+				return fmt.Errorf("c.Compile(%T): %w", node, err)
+			}
+			if _, err := c.emit(code.OpGreaterThan); err != nil {
+				return fmt.Errorf("c.emit: %w", err)
+			}
+		default:
+			if err := c.Compile(node.Left); err != nil {
+				return fmt.Errorf("c.Compile(%T): %w", node, err)
+			}
+			if err := c.Compile(node.Right); err != nil {
+				return fmt.Errorf("c.Compile(%T): %w", node, err)
+			}
+			if _, err := c.emitInfixOp(node.Operator); err != nil {
+				return fmt.Errorf("c.emitInfixOp: %w", err)
+			}
 		}
 	case *ast.IntegerLiteral:
 		if _, err := c.emit(code.OpConstant, c.addConstant(object.Integer{Value: node.Value})); err != nil {
@@ -105,6 +118,12 @@ func (c *Compiler) emitInfixOp(op string) (int, error) {
 		return c.emit(code.OpMul)
 	case "/":
 		return c.emit(code.OpDiv)
+	case ">":
+		return c.emit(code.OpGreaterThan)
+	case "==":
+		return c.emit(code.OpEqual)
+	case "!=":
+		return c.emit(code.OpNotEqual)
 	default:
 		return 0, fmt.Errorf("unknown operator: %s", op)
 	}

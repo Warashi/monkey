@@ -133,11 +133,78 @@ func TestBooleanExpressions(t *testing.T) {
 	var (
 		cat   = ConcatInstructions
 		instr = MakeInstructions
+		int   = IntegerObject
 	)
 
 	tests := []testcase{
 		{"true", "true", compiler.Bytecode{cat(instr(t, code.OpTrue), instr(t, code.OpPop)), nil}},
 		{"false", "false", compiler.Bytecode{cat(instr(t, code.OpFalse), instr(t, code.OpPop)), nil}},
+		{"gt", "1 > 2", compiler.Bytecode{
+			Instructions: cat(
+				instr(t, code.OpConstant, 0),
+				instr(t, code.OpConstant, 1),
+				instr(t, code.OpGreaterThan),
+				instr(t, code.OpPop),
+			),
+			Constants: []object.Object{
+				int(1),
+				int(2),
+			},
+		}},
+		{"lt", "1 < 2", compiler.Bytecode{
+			Instructions: cat(
+				instr(t, code.OpConstant, 0),
+				instr(t, code.OpConstant, 1),
+				instr(t, code.OpGreaterThan),
+				instr(t, code.OpPop),
+			),
+			Constants: []object.Object{
+				int(2),
+				int(1),
+			},
+		}},
+		{"eq", "1 == 2", compiler.Bytecode{
+			Instructions: cat(
+				instr(t, code.OpConstant, 0),
+				instr(t, code.OpConstant, 1),
+				instr(t, code.OpEqual),
+				instr(t, code.OpPop),
+			),
+			Constants: []object.Object{
+				int(1),
+				int(2),
+			},
+		}},
+		{"neq", "1 != 2", compiler.Bytecode{
+			Instructions: cat(
+				instr(t, code.OpConstant, 0),
+				instr(t, code.OpConstant, 1),
+				instr(t, code.OpNotEqual),
+				instr(t, code.OpPop),
+			),
+			Constants: []object.Object{
+				int(1),
+				int(2),
+			},
+		}},
+		{"eq", "true == false", compiler.Bytecode{
+			Instructions: cat(
+				instr(t, code.OpTrue),
+				instr(t, code.OpFalse),
+				instr(t, code.OpEqual),
+				instr(t, code.OpPop),
+			),
+			Constants: nil,
+		}},
+		{"neq", "true != false", compiler.Bytecode{
+			Instructions: cat(
+				instr(t, code.OpTrue),
+				instr(t, code.OpFalse),
+				instr(t, code.OpNotEqual),
+				instr(t, code.OpPop),
+			),
+			Constants: nil,
+		}},
 	}
 	for _, tt := range tests {
 		tt := tt
