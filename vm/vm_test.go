@@ -34,6 +34,10 @@ func TestIntegerArithmetric(t *testing.T) {
 		{"multi-calculation/4", "5 * 2 + 10", IntegerObject(20)},
 		{"multi-calculation/5", "5 + 2 * 10", IntegerObject(25)},
 		{"multi-calculation/6", "5 * (2 + 10)", IntegerObject(60)},
+		{"prefix-op/minus/-5", "-5", IntegerObject(-5)},
+		{"prefix-op/minus/-10", "-10", IntegerObject(-10)},
+		{"multi-calculation/7", "-50 + 100 + -50", IntegerObject(0)},
+		{"multi-calculation/8", "(5 + 10 * 2 + 15 / 3) * 2 + -10", IntegerObject(50)},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -71,6 +75,12 @@ func TestBooleanExpressions(t *testing.T) {
 		{"composite/false", "(1 < 2) == false", BooleanObject(false)},
 		{"composite/true", "(1 > 2) == false", BooleanObject(true)},
 		{"composite/false", "(1 > 2) == true", BooleanObject(false)},
+		{"prefix/bang/true", "!false", BooleanObject(true)},
+		{"prefix/bang/false", "!true", BooleanObject(false)},
+		{"prefix/bang/true", "!!true", BooleanObject(true)},
+		{"prefix/bang/false", "!!false", BooleanObject(false)},
+		{"prefix/bang/false", "!5", BooleanObject(false)},
+		{"prefix/bang/true", "!!5", BooleanObject(true)},
 	}
 	for _, tt := range tests {
 		tt := tt

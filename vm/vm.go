@@ -64,6 +64,14 @@ func (vm *VM) Run() error {
 			if err := vm.executeComparison(op); err != nil {
 				return fmt.Errorf("vm.executeComparison: %w", err)
 			}
+		case code.OpBang:
+			if err := vm.executeBangOperator(); err != nil {
+				return fmt.Errorf("vm.executeBangOperator: %w", err)
+			}
+		case code.OpMinus:
+			if err := vm.executeMinusOperator(); err != nil {
+				return fmt.Errorf("vm.executeMinusOperator: %w", err)
+			}
 		case code.OpTrue:
 			if err := vm.push(True); err != nil {
 				return fmt.Errorf("vm.push: %w", err)
@@ -208,6 +216,41 @@ func (vm *VM) executeBooleanComparison(op code.Opcode, left, right object.Boolea
 		return fmt.Errorf("uknown operator: %s", op.String())
 	}
 	if err := vm.push(booleanObject(result)); err != nil {
+		return fmt.Errorf("vm.push: %w", err)
+	}
+	return nil
+}
+
+func (vm *VM) executeBangOperator() error {
+	operand, err := vm.pop()
+	if err != nil {
+		return fmt.Errorf("vm.pop: %w", err)
+	}
+	switch operand {
+	case False:
+		if err := vm.push(True); err != nil {
+			return fmt.Errorf("vm.push: %w", err)
+		}
+	case True:
+		fallthrough
+	default:
+		if err := vm.push(False); err != nil {
+			return fmt.Errorf("vm.push: %w", err)
+		}
+	}
+	return nil
+}
+
+func (vm *VM) executeMinusOperator() error {
+	operand, err := vm.pop()
+	if err != nil {
+		return fmt.Errorf("vm.pop: %w", err)
+	}
+	if operand.Type() != object.TypeInteger {
+		return fmt.Errorf("unsupported type for negation: %s", operand.Type())
+	}
+	val := operand.(object.Integer).Value
+	if err := vm.push(object.Integer{Value: -val}); err != nil {
 		return fmt.Errorf("vm.push: %w", err)
 	}
 	return nil
