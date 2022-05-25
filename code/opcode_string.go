@@ -21,11 +21,13 @@ func _() {
 	_ = x[OpGreaterThan-11]
 	_ = x[OpTrue-12]
 	_ = x[OpFalse-13]
+	_ = x[OpJumpNotTruthy-14]
+	_ = x[OpJump-15]
 }
 
-const _Opcode_name = "OpConstantOpPopOpMinusOpBangOpAddOpSubOpMulOpDivOpEqualOpNotEqualOpGreaterThanOpTrueOpFalse"
+const _Opcode_name = "OpConstantOpPopOpMinusOpBangOpAddOpSubOpMulOpDivOpEqualOpNotEqualOpGreaterThanOpTrueOpFalseOpJumpNotTruthyOpJump"
 
-var _Opcode_index = [...]uint8{0, 10, 15, 22, 28, 33, 38, 43, 48, 55, 65, 78, 84, 91}
+var _Opcode_index = [...]uint8{0, 10, 15, 22, 28, 33, 38, 43, 48, 55, 65, 78, 84, 91, 106, 112}
 
 func (i Opcode) String() string {
 	i -= 1

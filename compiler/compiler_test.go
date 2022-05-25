@@ -143,7 +143,6 @@ func TestIntegerArithmetric(t *testing.T) {
 
 func TestBooleanExpressions(t *testing.T) {
 	t.Parallel()
-	type ()
 	var (
 		cat   = ConcatInstructions
 		instr = MakeInstructions
@@ -282,6 +281,64 @@ func TestReadOperands(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.bytesRead, n)
 			assert.Equal(t, tt.operands, read)
+		})
+	}
+}
+
+func TestConditionals(t *testing.T) {
+	var (
+		cat   = ConcatInstructions
+		instr = MakeInstructions
+		int   = IntegerObject
+	)
+	tests := []testcase{
+		{
+			name:  "if",
+			input: "if (true) { 10 }; 3333;",
+			want: compiler.Bytecode{
+				Constants: []object.Object{int(10), int(3333)},
+				Instructions: cat(
+					instr(t, code.OpTrue),
+					instr(t, code.OpJumpNotTruthy, 7),
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpPop),
+					instr(t, code.OpConstant, 1),
+					instr(t, code.OpPop),
+				),
+			},
+		},
+		{
+			name:  "if-else",
+			input: "if (true) { 10 } else { 20 }; 3333;",
+			want: compiler.Bytecode{
+				Constants: []object.Object{int(10), int(20), int(3333)},
+				Instructions: cat(
+					instr(t, code.OpTrue),
+					instr(t, code.OpJumpNotTruthy, 10),
+					instr(t, code.OpConstant, 0),
+					instr(t, code.OpJump, 13),
+					instr(t, code.OpConstant, 1),
+					instr(t, code.OpPop),
+					instr(t, code.OpConstant, 2),
+					instr(t, code.OpPop),
+				),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			program := parser.New(lexer.New(tt.input)).Parse()
+
+			compiler := compiler.New()
+			require.NoError(t, compiler.Compile(program))
+			if want, got := tt.want, compiler.Bytecode(); !cmp.Equal(want, got) {
+				if !cmp.Equal(want.Instructions, got.Instructions) {
+					t.Log(cmp.Diff(want.Instructions.String(), got.Instructions.String()))
+				}
+				t.Error(cmp.Diff(want, got))
+			}
 		})
 	}
 }

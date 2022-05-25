@@ -36,6 +36,10 @@ const (
 	// boolean
 	OpTrue
 	OpFalse
+
+	// jump
+	OpJumpNotTruthy
+	OpJump
 )
 
 type Definition struct {
@@ -44,19 +48,21 @@ type Definition struct {
 }
 
 var definitions = map[Opcode]Definition{
-	OpConstant:    {"OpConstant", []int{2}},
-	OpPop:         {"OpPop", nil},
-	OpMinus:       {"OpMinus", nil},
-	OpBang:        {"OpBang", nil},
-	OpAdd:         {"OpAdd", nil},
-	OpSub:         {"OpSub", nil},
-	OpMul:         {"OpMul", nil},
-	OpDiv:         {"OpDiv", nil},
-	OpEqual:       {"OpEqual", nil},
-	OpNotEqual:    {"OpNotEqual", nil},
-	OpGreaterThan: {"OpGreaterThan", nil},
-	OpTrue:        {"OpTrue", nil},
-	OpFalse:       {"OpFalse", nil},
+	OpConstant:      {"OpConstant", []int{2}},
+	OpPop:           {"OpPop", nil},
+	OpMinus:         {"OpMinus", nil},
+	OpBang:          {"OpBang", nil},
+	OpAdd:           {"OpAdd", nil},
+	OpSub:           {"OpSub", nil},
+	OpMul:           {"OpMul", nil},
+	OpDiv:           {"OpDiv", nil},
+	OpEqual:         {"OpEqual", nil},
+	OpNotEqual:      {"OpNotEqual", nil},
+	OpGreaterThan:   {"OpGreaterThan", nil},
+	OpTrue:          {"OpTrue", nil},
+	OpFalse:         {"OpFalse", nil},
+	OpJumpNotTruthy: {"OpJumpNotTruthy", []int{2}},
+	OpJump:          {"OpJump", []int{2}},
 }
 
 func Lookup(op Opcode) (Definition, error) {
