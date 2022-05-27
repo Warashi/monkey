@@ -96,3 +96,29 @@ func TestBooleanExpressions(t *testing.T) {
 		})
 	}
 }
+
+func TestConditionals(t *testing.T) {
+	t.Parallel()
+	tests := []testcase{
+		{"if-true", "if (true) { 10 }", IntegerObject(10)},
+		{"if-true-else", "if (true) { 10 } else { 20 }", IntegerObject(10)},
+		{"if-false-else", "if (false) { 10 } else { 20 }", IntegerObject(20)},
+		{"if-1", "if (1) { 10 }", IntegerObject(10)},
+		{"if-trueexp", "if (1 < 2) { 10 }", IntegerObject(10)},
+		{"if-trueexp-else", "if (1 < 2) { 10 } else { 20 }", IntegerObject(10)},
+		{"if-falseexp-else", "if (1 > 2) { 10 } else { 20 }", IntegerObject(20)},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			compiler := compiler.New()
+			require.NoError(t, compiler.Compile(parser.New(lexer.New(tt.input)).Parse()))
+
+			vm := vm.New(compiler.Bytecode())
+			require.NoError(t, vm.Run())
+
+			assert.Equal(t, tt.want, vm.LastPopedStackElem())
+		})
+	}
+}

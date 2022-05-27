@@ -84,6 +84,23 @@ func (vm *VM) Run() error {
 			if _, err := vm.pop(); err != nil {
 				return fmt.Errorf("vm.pop: %w", err)
 			}
+		case code.OpJump:
+			pos, err := code.ReadUint16(r)
+			if err != nil {
+				return fmt.Errorf("code.ReadUint16: %w", err)
+			}
+			r.Seek(pos, 0)
+		case code.OpJumpNotTruthy:
+			pos, err := code.ReadUint16(r)
+
+			condition, err := vm.pop()
+			if err != nil {
+				return fmt.Errorf("vm.pop: %w", err)
+			}
+
+			if !isTruthy(condition) {
+				r.Seek(pos, 0)
+			}
 		default:
 			return fmt.Errorf("unknown opcode: %s", op.String())
 		}
@@ -264,4 +281,13 @@ func booleanObject(value bool) object.Boolean {
 		return False
 	}
 	panic("unreachable")
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj := obj.(type) {
+	case object.Boolean:
+		return obj.Value
+	default:
+		return true
+	}
 }
