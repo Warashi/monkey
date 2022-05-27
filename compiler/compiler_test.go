@@ -293,22 +293,32 @@ func TestConditionals(t *testing.T) {
 	)
 	tests := []testcase{
 		{
-			name:  "if",
+			name:  "if-true",
 			input: "if (true) { 10 }; 3333;",
 			want: compiler.Bytecode{
 				Constants: []object.Object{int(10), int(3333)},
 				Instructions: cat(
+					// 0000
 					instr(t, code.OpTrue),
-					instr(t, code.OpJumpNotTruthy, 7),
+					// 0001
+					instr(t, code.OpJumpNotTruthy, 10),
+					// 0004
 					instr(t, code.OpConstant, 0),
+					// 0007
+					instr(t, code.OpJump, 11),
+					// 0010
+					instr(t, code.OpNull),
+					// 0011
 					instr(t, code.OpPop),
+					// 0012
 					instr(t, code.OpConstant, 1),
+					// 0015
 					instr(t, code.OpPop),
 				),
 			},
 		},
 		{
-			name:  "if-else",
+			name:  "if-true-else",
 			input: "if (true) { 10 } else { 20 }; 3333;",
 			want: compiler.Bytecode{
 				Constants: []object.Object{int(10), int(20), int(3333)},

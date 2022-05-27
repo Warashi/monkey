@@ -16,6 +16,7 @@ const StackSize = 1 << 11
 var (
 	True  = object.Boolean{Value: true}
 	False = object.Boolean{Value: false}
+	Null  = object.Null{}
 )
 
 type VM struct {
@@ -100,6 +101,10 @@ func (vm *VM) Run() error {
 
 			if !isTruthy(condition) {
 				r.Seek(pos, 0)
+			}
+		case code.OpNull:
+			if err := vm.push(Null); err != nil {
+				return fmt.Errorf("vm.push: %w", err)
 			}
 		default:
 			return fmt.Errorf("unknown opcode: %s", op.String())
@@ -243,15 +248,12 @@ func (vm *VM) executeBangOperator() error {
 	if err != nil {
 		return fmt.Errorf("vm.pop: %w", err)
 	}
-	switch operand {
-	case False:
-		if err := vm.push(True); err != nil {
+	if isTruthy(operand) {
+		if err := vm.push(False); err != nil {
 			return fmt.Errorf("vm.push: %w", err)
 		}
-	case True:
-		fallthrough
-	default:
-		if err := vm.push(False); err != nil {
+	} else {
+		if err := vm.push(True); err != nil {
 			return fmt.Errorf("vm.push: %w", err)
 		}
 	}
@@ -287,6 +289,8 @@ func isTruthy(obj object.Object) bool {
 	switch obj := obj.(type) {
 	case object.Boolean:
 		return obj.Value
+	case object.Null:
+		return false
 	default:
 		return true
 	}

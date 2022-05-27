@@ -81,6 +81,7 @@ func TestBooleanExpressions(t *testing.T) {
 		{"prefix/bang/false", "!!false", BooleanObject(false)},
 		{"prefix/bang/false", "!5", BooleanObject(false)},
 		{"prefix/bang/true", "!!5", BooleanObject(true)},
+		{"composite/if", "!(if (false) { 5; })", BooleanObject(true)},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -101,10 +102,12 @@ func TestConditionals(t *testing.T) {
 	t.Parallel()
 	tests := []testcase{
 		{"if-true", "if (true) { 10 }", IntegerObject(10)},
+		{"if-false", "if (false) { 10 }", NullObject()},
 		{"if-true-else", "if (true) { 10 } else { 20 }", IntegerObject(10)},
 		{"if-false-else", "if (false) { 10 } else { 20 }", IntegerObject(20)},
 		{"if-1", "if (1) { 10 }", IntegerObject(10)},
 		{"if-trueexp", "if (1 < 2) { 10 }", IntegerObject(10)},
+		{"if-falseexp", "if (1 > 2) { 10 }", NullObject()},
 		{"if-trueexp-else", "if (1 < 2) { 10 } else { 20 }", IntegerObject(10)},
 		{"if-falseexp-else", "if (1 > 2) { 10 } else { 20 }", IntegerObject(20)},
 	}

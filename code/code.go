@@ -40,6 +40,9 @@ const (
 	// jump
 	OpJumpNotTruthy
 	OpJump
+
+	// null
+	OpNull
 )
 
 type Definition struct {
@@ -63,6 +66,7 @@ var definitions = map[Opcode]Definition{
 	OpFalse:         {"OpFalse", nil},
 	OpJumpNotTruthy: {"OpJumpNotTruthy", []int{2}},
 	OpJump:          {"OpJump", []int{2}},
+	OpNull:          {"OpNull", nil},
 }
 
 func Lookup(op Opcode) (Definition, error) {

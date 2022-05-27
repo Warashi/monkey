@@ -54,7 +54,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err := c.Compile(node.Condition); err != nil {
 			return fmt.Errorf("c.Compile(%T): %w", node, err)
 		}
-		// TODO
+		// emit an `OpJumpNotTruthy` with a bogus value
 		jumpNotTruthyPos, err := c.emit(code.OpJumpNotTruthy, 9999)
 		if err != nil {
 			return fmt.Errorf("c.emit: %w", err)
@@ -67,18 +67,19 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if c.lastInstructionIsPop() {
 			c.removeLastPop()
 		}
+		// emit an `OpJump` with a bogus value
+		jumpPos, err := c.emit(code.OpJump, 9999)
+		if err != nil {
+			return fmt.Errorf("c.emit: %w", err)
+		}
+		afterConsequencePos := len(c.instructions)
+		c.changeOperand(jumpNotTruthyPos, int64(afterConsequencePos))
 
 		if node.Alternative == nil {
-			afterConsequencePos := len(c.instructions)
-			c.changeOperand(jumpNotTruthyPos, int64(afterConsequencePos))
-		} else {
-			jumpPos, err := c.emit(code.OpJump, 9999)
-			if err != nil {
+			if _, err := c.emit(code.OpNull); err != nil {
 				return fmt.Errorf("c.emit: %w", err)
 			}
-			afterConsequencePos := len(c.instructions)
-			c.changeOperand(jumpNotTruthyPos, int64(afterConsequencePos))
-
+		} else {
 			if err := c.Compile(node.Alternative); err != nil {
 				return fmt.Errorf("c.Compile(%T): %w", node, err)
 			}
@@ -86,10 +87,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 			if c.lastInstructionIsPop() {
 				c.removeLastPop()
 			}
-
-			afterAlternativePos := len(c.instructions)
-			c.changeOperand(jumpPos, int64(afterAlternativePos))
 		}
+		afterAlternativePos := len(c.instructions)
+		c.changeOperand(jumpPos, int64(afterAlternativePos))
 	case *ast.PrefixExpression:
 		if err := c.Compile(node.Right); err != nil {
 			return fmt.Errorf("c.Compile(%T): %w", node, err)
